@@ -1,0 +1,25 @@
+{
+  "name": "www.adventure-buddy.com",
+  "version": "1.0.0",
+  "description": "The Adventure Buddy website.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adventurebuddy/adventurebuddy.git"
+  },
+  "author": "Alex Hoyland",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/adventurebuddy/adventurebuddy/issues"
+  },
+  "homepage": "https://github.com/adventurebuddy/adventurebuddy#readme",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "express": "^4.15.3",
+    "passport": "^0.3.2",
+    "react": "^15.6.1"
+  }
+}
