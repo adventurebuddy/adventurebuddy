@@ -129,12 +129,16 @@ img.login-pic {
 
   .featurette-heading {
     font-size: 50px;
+    text-align:center;
   }
 }
 
 @media (min-width: 992px) {
   .featurette-heading {
-    margin-top: 120px;
+    vertical-align:center;
   }
 }
 
+.lead {
+  text-align:center;
+}
