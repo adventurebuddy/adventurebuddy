@@ -2,8 +2,8 @@
   "name": "adventurebuddy",
   "private": true,
   "devDependencies": {
-	"minimatch": "^3.0.2",
-	"graceful-fs": "^4.0.0",
+    "minimatch": "^3.0.2",
+    "graceful-fs": "^4.0.0",
     "autoprefixer-core": "^5.2.1",
     "bower": "^1.8.0",
     "grunt": "^0.4.5",
@@ -45,5 +45,8 @@
   },
   "scripts": {
     "test": "karma start test\\karma.conf.js"
+  },
+  "dependencies": {
+    "express": "^4.15.3"
   }
 }
