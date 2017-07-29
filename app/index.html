@@ -13,6 +13,7 @@
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
 
+    <!-- Title ========================================================================= -->
     <title>Adventure Buddy</title>
 
 	<!-- CSS stylesheets =============================================================== -->
@@ -44,17 +45,21 @@
     <div ng-view></div>
     <div ng-include='"views/footer.html"'></div>   
 
-    <!-- Angular JavaScript ========================================================= -->
+	<!-- Javascript (placed at end of page for faster loads) ======================== -->
+	
+    <!-- Angular JavaScript -->
     <script src="../bower_components/angular/angular.js"></script>
     <script src="../bower_components/angular-route/angular-route.js"></script>
 
-    <!-- Bootstrap core JavaScript ================================================== -->
+	<!-- JQuery JavaScript -->
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="../bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
+	
+    <!-- Bootstrap JavaScript -->
     <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="scripts/ie10-viewport-bug-workaround.js"></script><!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-
-    <!-- Site JavaScript ============================================================ -->
+	
+    <!-- Site JavaScript -->
     <script src="scripts/main.js"></script>
 
   </body>
