@@ -31,6 +31,7 @@ app.config(function ($routeProvider, $locationProvider) {
 	{
 		$locationProvider.html5Mode(true);
 		//TODO: load this in an old browser, I think it will break.
+		//TODO: this and the associated removal of all the #'s apparently will break the minifier
 	}
 });
 
