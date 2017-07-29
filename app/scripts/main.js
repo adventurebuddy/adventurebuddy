@@ -10,7 +10,7 @@ var app = angular.module('adventureBuddyApp', ['ngRoute']);
  
 app.config(function ($routeProvider, $locationProvider) {
 	
-	// Make the location provider not randomly insert %2F in the URL
+	// Make the location provider not randomly insert # and %2F in the URL
     $locationProvider.hashPrefix('');
 	
 	//Set up the routes
@@ -22,8 +22,15 @@ app.config(function ($routeProvider, $locationProvider) {
     .when('/gallery', {templateUrl: 'views/gallery.html', controller: 'PageCtrl'})
     .when('/tos', {templateUrl: 'views/terms.html', controller: 'PageCtrl'})
     .when('/privacy', {templateUrl: 'views/privacy.html', controller: 'PageCtrl'})
+    .when('/login', {templateUrl: 'views/loginsignup.html', controller: 'PageCtrl'})
     // else 404
     .otherwise('/404', {templateUrl: '404.html', controller: 'PageCtrl'});
+	
+	//Get rid of the # in the URL.  This is unsupported in IE lt 10 so check.
+	if(window.history && window.history.pushState)
+	{
+		$locationProvider.html5Mode(true);
+	}
 });
 
 // Controls all other Pages ===================================================
