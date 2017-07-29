@@ -30,6 +30,7 @@ app.config(function ($routeProvider, $locationProvider) {
 	if(window.history && window.history.pushState)
 	{
 		$locationProvider.html5Mode(true);
+		//TODO: load this in an old browser, I think it will break.
 	}
 });
 
