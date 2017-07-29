@@ -22,19 +22,10 @@
     <!-- Bootstrap core CSS -->
     <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="styles/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
-    <script src="scripts/ie-emulation-modes-warning.js"></script>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
     <!-- Custom styles for this template -->
-    <link href="styles/main.css" rel="stylesheet">
+	<!-- build:css({.tmp,dist,app}) styles/styles.css -->
+    <link href="styles/main.css" rel="stylesheet">	
+	<!-- endbuild -->
 
   </head>
   
@@ -49,8 +40,8 @@
 	<!-- Javascript (placed at end of page for faster loads) ======================== -->
 	
     <!-- Angular JavaScript -->
-    <script src="../bower_components/angular/angular.js"></script>
-    <script src="../bower_components/angular-route/angular-route.js"></script>
+    <script src="../bower_components/angular/angular.min.js"></script>
+    <script src="../bower_components/angular-route/angular-route.min.js"></script>
 
 	<!-- JQuery JavaScript -->
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
@@ -58,10 +49,11 @@
 	
     <!-- Bootstrap JavaScript -->
     <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="scripts/ie10-viewport-bug-workaround.js"></script><!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 	
-    <!-- Site JavaScript -->
+	<!-- Site JavaScript -->
+	<!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
     <script src="scripts/main.js"></script>
-
+	<!-- endbuild -->
+	
   </body>
 </html>

@@ -37,8 +37,12 @@ app.config(function ($routeProvider, $locationProvider) {
 
 // Controls all other Pages ===================================================
  
-app.controller('PageCtrl', function ($scope, $location, $http) {
-  console.log('Page Controller reporting for duty.\nScope is:\n%s\nLocation is:\n%sHttp is:\n%s\n\n',$scope, $location, $http);
+app.controller('PageCtrl', function ($scope,$location) {
+	
+	//Highlights the links as we move around.
+	$scope.isActive = function (viewLocation) { 
+		return viewLocation === $location.path();
+    };
 });
 
 // Carousel handler ===========================================================

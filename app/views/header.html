@@ -12,13 +12,13 @@
               </button>
               <a class="navbar-brand" href="/">Adventure Buddy</a>
             </div>
-            <div id="navbar" class="navbar-collapse collapse">
+            <div id="navbar" class="navbar-collapse collapse" ng-controller="PageCtrl">
               <ul class="nav navbar-nav">
-                <li class="active"><a href="/">Home</a></li>
-                <li><a href="/gallery">Gallery</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/tos">Terms</a></li>
-                <li><a href="/privacy">Privacy</a></li>
+                <li ng-class="{ active: isActive('/')}"><a href="/">Home</a></li>
+                <li ng-class="{ active: isActive('/gallery')}"><a href="/gallery">Gallery</a></li>
+                <li ng-class="{ active: isActive('/about')}"><a href="/about">About</a></li>
+                <li ng-class="{ active: isActive('/tos')}"><a href="/tos">Terms</a></li>
+                <li ng-class="{ active: isActive('/privacy')}"><a href="/privacy">Privacy</a></li>
               </ul>
               <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown pull-xs-right">
