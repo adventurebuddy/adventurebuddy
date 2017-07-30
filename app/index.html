@@ -4,27 +4,33 @@
   <!-- Head stuff =================================================================== -->
   <head>
   
-    <!-- Meta stuff =================================================================== -->
+    <!-- Meta stuff - these 3 tags must come *first* in the head ====================== -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
+    	
+	<!-- Site description and favicon ================================================= -->
+    <meta name="description" content="Adventure Buddy Homepage">
+    <meta name="author" content="Adventure Buddy LLC">
     <link rel="icon" href="favicon.ico">
-	<base href="/" /> <!-- Base tag so we can use angular in HTML5 mode and get rid of the # in the URL when supported -->
+	
+	<!-- Base URL so Angular can route URLs like /tos ================================= -->
+	<base href="/" /> 
 	
     <!-- Title ========================================================================= -->
     <title>Adventure Buddy</title>
 	
 	<!-- CSS stylesheets =============================================================== -->
 	
+	<!-- This comment will cause grunt to concatenate and minify all of these files into dist/styles/styles.js -->
+	<!-- build:css({.tmp,dist,app}) styles/styles.css -->
+	
     <!-- Bootstrap core CSS -->
-    <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-	<!-- build:css({.tmp,dist,app}) styles/styles.css -->
     <link href="styles/main.css" rel="stylesheet">	
+	
 	<!-- endbuild -->
 
   </head>
@@ -39,20 +45,24 @@
 
 	<!-- Javascript (placed at end of page for faster loads) ======================== -->
 	
+	<!-- This comment will cause grunt to concatenate and minify all of these files into dist/scripts/scripts.js -->
+	<!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
+	
     <!-- Angular JavaScript -->
-    <script src="../bower_components/angular/angular.min.js"></script>
-    <script src="../bower_components/angular-route/angular-route.min.js"></script>
+    <script src="../bower_components/angular/angular.js"></script>
+    <script src="../bower_components/angular-route/angular-route.js"></script>
 
 	<!-- JQuery JavaScript -->
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="../bower_components/jquery/dist/jquery.min.js"><\/script>')</script>
+    <script src="../bower_components/jquery/dist/jquery.js"></script>
+    <script>window.jQuery || document.write('<script src="../bower_components/jquery/dist/jquery.js"><\/script>')</script>
 	
     <!-- Bootstrap JavaScript -->
-    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>
+	<script src="../bower_components/bootstrap/js/carousel.js"></script>
 	
 	<!-- Site JavaScript -->
-	<!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
     <script src="scripts/main.js"></script>
+	
 	<!-- endbuild -->
 	
   </body>

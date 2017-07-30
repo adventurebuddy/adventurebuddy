@@ -15,8 +15,7 @@ module.exports = function (grunt) {
   // Automatically load required Grunt tasks
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
-    ngtemplates: 'grunt-angular-templates',
-    cdnify: 'grunt-google-cdn'
+    ngtemplates: 'grunt-angular-templates'
   });
 
   // Configurable paths for the application
@@ -270,28 +269,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // The following *-min tasks will produce minified files in the dist folder
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    //cssmin: {
-    //  dist: {
-    //    files: {
-    //      '<%= yeoman.dist %>/styles/main.css': [
-    //        '.tmp/styles/{,*/}*.css'
-    //      ]
-    //    }
-    //  }
-    //},
-    //uglify: {
-    //  dist: {
-    //    files: {
-    //      '<%= yeoman.dist %>/scripts/scripts.js': [
-    //        '<%= yeoman.dist %>/scripts/scripts.js'
-    //      ]
-    //    }
-    //  }
-    //},
     concat: {
       dist: {}
     },
@@ -364,13 +341,6 @@ module.exports = function (grunt) {
           src: '*.js',
           dest: '.tmp/concat/scripts'
         }]
-      }
-    },
-
-    // Replace Google CDN references
-    cdnify: {
-      dist: {
-        html: ['<%= yeoman.dist %>/*.html']
       }
     },
 
@@ -481,8 +451,7 @@ module.exports = function (grunt) {
     'uglify',
     'filerev',
     'usemin',
-    'htmlmin',
-    'cdnify'
+    'htmlmin'
   ]);
 
   grunt.registerTask('default', [
