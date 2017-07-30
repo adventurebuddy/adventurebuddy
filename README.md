@@ -26,7 +26,7 @@ To serve the non-minified version on the local machine, run 'grunt serve'.  This
 
 To serve the minified version on the local machine, run 'grunt serve:dist'.  This will start a web server in the dist folder and open your browser.
 
-## Command to deploy the app to the server
+## Commands to deploy the app to the server
 
 Log into the server and execute the following commands:
 
