@@ -26,4 +26,17 @@ To serve the non-minified version on the local machine, run 'grunt serve'.  This
 
 To serve the minified version on the local machine, run 'grunt serve:dist'.  This will start a web server in the dist folder and open your browser.
 
-When done, you can upload the latest version to the server using a 'git pull' from the server.
+## Command to deploy the app to the server
+
+Log into the server and execute the following commands:
+
+* cd /var/www/adventurebuddy
+* git pull
+* rm -rf node_modules
+* rm -rf bower_components
+* npm install
+* bower install
+* grunt
+* sudo service adventurebuddy restart
+
+Later we will need to deploy this more gracefully, but for right now this is fine... we'll want to take the server offline and show a maintenance page while we update, and then we'll have to figure out how to automate this process across the whole scaling group... sigh... opening another issue...
