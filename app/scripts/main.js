@@ -52,7 +52,7 @@ app.controller('PageCtrl', function ($scope,$location) {
  * call the bootstrap handler before the angular route provider gets it.
  */
 
-var handle_nav = function(e) {
+var handleCarouselNav = function(e) {
 	e.preventDefault();
 	var nav = this;
 	nav.parents('.carousel').carousel(nav.data('slide'));
@@ -60,7 +60,7 @@ var handle_nav = function(e) {
 
 $('.carousel').carousel({
 			interval: 5000,
-			pause: "hover",
+			pause: 'hover',
 			wrap: true
 		})
-		.on('click', '.carousel-control', handle_nav);
+		.on('click', '.carousel-control', handleCarouselNav);

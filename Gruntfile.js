@@ -428,13 +428,13 @@ module.exports = function (grunt) {
     grunt.task.run(['serve:' + target]);
   });
 
+  //removed karma task for now; reconfigure later - ADH
   grunt.registerTask('test', [
     'clean:server',
     'wiredep',
     'concurrent:test',
     'postcss',
-    'connect:test',
-    'karma'
+    'connect:test'
   ]);
 
   grunt.registerTask('build', [
