@@ -332,6 +332,11 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.dist %>',
           src: ['*.html'],
           dest: '<%= yeoman.dist %>'
+        },{
+          expand: true,
+          cwd: '<%= yeoman.dist %>/views',
+          src: ['*.html'],
+          dest: '<%= yeoman.dist %>/views'
         }]
       }
     },
@@ -392,6 +397,11 @@ module.exports = function (grunt) {
           expand: true,
           cwd: 'bower_components/bootstrap/dist',
           src: 'fonts/*',
+          dest: '<%= yeoman.dist %>'
+        }, {
+          expand: true,
+          cwd: 'app',
+          src: 'views/*',
           dest: '<%= yeoman.dist %>'
         }]
       },
@@ -467,12 +477,12 @@ module.exports = function (grunt) {
     'concat',
     'ngAnnotate',
     'copy:dist',
-    'cdnify',
     'cssmin',
     'uglify',
     'filerev',
     'usemin',
-    'htmlmin'
+    'htmlmin',
+    'cdnify'
   ]);
 
   grunt.registerTask('default', [
