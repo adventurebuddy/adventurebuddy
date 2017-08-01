@@ -11,7 +11,7 @@ var app = angular.module('adventureBuddyApp', ['ngRoute']);
 var checkLoggedin = function($q, $timeout, $http, $location, $rootScope) {
 	var deferred = $q.defer();
 
-	$http.get('http://localhost:3000/loggedin')
+	$http.get('node/loggedin')
 		.then(
 			function successCallback(response) {
 				$rootScope.errorMessage = null;
@@ -79,7 +79,7 @@ app.controller('PageCtrl', function ($rootScope, $scope, $http, $location) {
 	//Provides a callback for the logout button
 	$scope.logout = function() {
 	  console.log('Logging out...\n');
-      $http.post("http://localhost:3000/logout")
+      $http.post("node/logout")
         .then(function() {
           $rootScope.currentUser = null;
           $location.url("/");
@@ -97,7 +97,7 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
 		if (newuser.password === newuser.password2) {
 			//Post to the signup URL
 			console.log('Signing up new user %s...\n',JSON.stringify(newuser));
-			$http.post('http://localhost:3000/signup', newuser)
+			$http.post('node/signup', newuser)
 			//Process the response
 			.then(
 				function successCallback(response) {
@@ -107,7 +107,6 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
 						$rootScope.currentUser = response.data;
 						console.log('Now logged in as %s...\n',JSON.stringify($rootScope.currentUser ));
 						$location.url("/profile");
-						//TODO: get this to redirect
 					}
 					//If we failed, print an error message saying the user is already registered
 					else{
@@ -139,7 +138,7 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
 	$scope.login = function(user) {
 		//Post to the login URL
 		console.log('Logging in user %s...\n',JSON.stringify(user));
-		$http.post('http://localhost:3000/login', user)
+		$http.post('node/login', user)
 		//Process the response
 		.then(
 			//If we were successful, save user data and redirect to profile page
@@ -148,7 +147,6 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
 				$rootScope.currentUser = response.data;
 				console.log('Now logged in as %s...\n',JSON.stringify($rootScope.currentUser ));
 				$location.url("/profile");
-				//TODO: get this to redirect
 			},
 			//If we failed, handle the 401 and print an error message saying the username or password is wrong
 			function errorCallback(response) {
