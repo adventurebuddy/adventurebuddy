@@ -79,10 +79,10 @@ app.controller('PageCtrl', function ($rootScope, $scope, $http, $location) {
 	//Provides a callback for the logout button
 	$scope.logout = function() {
 	  console.log('Logging out...\n');
-      $http.post("node/logout")
+      $http.post('node/logout')
         .then(function() {
           $rootScope.currentUser = null;
-          $location.url("/");
+          $location.url('/');
         });
     };
 });
@@ -106,7 +106,7 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
 					if(response.data!==null){
 						$rootScope.currentUser = response.data;
 						console.log('Now logged in as %s...\n',JSON.stringify($rootScope.currentUser ));
-						$location.url("/profile");
+						$location.url('/profile');
 					}
 					//If we failed, print an error message saying the user is already registered
 					else{
@@ -146,7 +146,7 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
 				console.log('Response is %s...\n',JSON.stringify(response));
 				$rootScope.currentUser = response.data;
 				console.log('Now logged in as %s...\n',JSON.stringify($rootScope.currentUser ));
-				$location.url("/profile");
+				$location.url('/profile');
 			},
 			//If we failed, handle the 401 and print an error message saying the username or password is wrong
 			function errorCallback(response) {
