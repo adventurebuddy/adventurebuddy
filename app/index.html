@@ -22,7 +22,7 @@
 	
 	<!-- CSS stylesheets =============================================================== -->
 	
-	<!-- This comment will cause grunt to concatenate and minify all of these files into dist/styles/styles.js -->
+	<!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/styles/styles.js -->
 	<!-- build:css({.tmp,dist,app}) styles/styles.css -->
 	
     <!-- Bootstrap core CSS -->
@@ -45,7 +45,7 @@
 
 	<!-- Javascript (placed at end of page for faster loads) ======================== -->
 	
-	<!-- This comment will cause grunt to concatenate and minify all of these files into dist/scripts/scripts.js -->
+	<!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/scripts/scripts.js -->
 	<!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
 	
     <!-- Angular JavaScript -->
@@ -61,6 +61,14 @@
 	
 	<!-- Site JavaScript -->
     <script src="scripts/main.js"></script>
+	
+	<!-- endbuild -->
+	
+	<!--  This comment will cause grunt-usemin to remove this script when compiling to dist. -->
+	<!-- build:removeThis -->
+	
+	<!--  This keeps the livereload feature running when I grunt serve and redirect to it through NGINX. -->
+	<script src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script>
 	
 	<!-- endbuild -->
 	
