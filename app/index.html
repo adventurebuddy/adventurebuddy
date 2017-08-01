@@ -1,76 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  
-  <!-- Head stuff =================================================================== -->
-  <head>
-  
-    <!-- Meta stuff - these 3 tags must come *first* in the head ====================== -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    	
-	<!-- Site description and favicon ================================================= -->
-    <meta name="description" content="Adventure Buddy Homepage">
-    <meta name="author" content="Adventure Buddy LLC">
-    <link rel="icon" href="favicon.ico">
-	
-	<!-- Base URL so Angular can route URLs like /tos ================================= -->
-	<base href="/" /> 
-	
-    <!-- Title ========================================================================= -->
-    <title>Adventure Buddy</title>
-	
-	<!-- CSS stylesheets =============================================================== -->
-	
-	<!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/styles/styles.js -->
-	<!-- build:css({.tmp,dist,app}) styles/styles.css -->
-	
-    <!-- Bootstrap core CSS -->
-    <link href="libs/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="styles/main.css" rel="stylesheet">	
-	
-	<!-- endbuild -->
-
-  </head>
-  
-  <!-- Body of site ================================================================= -->
-  <body ng-app="adventureBuddyApp">
-
-    <!-- Site goes here ============================================================= -->
-    <div ng-include='"views/header.html"'></div>
-    <div ng-view></div>
-    <div ng-include='"views/footer.html"'></div>   
-
-	<!-- Javascript (placed at end of page for faster loads) ======================== -->
-	
-	<!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/scripts/scripts.js -->
-	<!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
-	
-    <!-- Angular JavaScript -->
-    <script src="libs/angular/angular.js"></script>
-    <script src="libs/angular-route/angular-route.js"></script>
-
-	<!-- JQuery JavaScript -->
-    <script src="libs/jquery/dist/jquery.js"></script>
-	
-    <!-- Bootstrap JavaScript -->
-    <script src="libs/bootstrap/dist/js/bootstrap.js"></script>
-	<script src="libs/bootstrap/js/carousel.js"></script>
-	
-	<!-- Site JavaScript -->
-    <script src="scripts/main.js"></script>
-	
-	<!-- endbuild -->
-	
-	<!--  This comment will cause grunt-usemin to remove this script when compiling to dist. -->
-	<!-- build:removeThis -->
-	
-	<!--  This keeps the livereload feature running when I grunt serve and redirect to it through NGINX. -->
-	<script src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script>
-	
-	<!-- endbuild -->
-	
-  </body>
+    <!-- Head stuff =================================================================== -->
+    <head>
+        <!-- Meta stuff - these 3 tags must come *first* in the head ====================== -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Site description and favicon ================================================= -->
+        <meta name="description" content="Adventure Buddy Homepage">
+        <meta name="author" content="Adventure Buddy LLC">
+        <link rel="icon" href="favicon.ico">
+        <!-- Base URL so Angular can route URLs like /tos ================================= -->
+        <base href="/" />
+        <!-- Title ========================================================================= -->
+        <title>Adventure Buddy</title>
+        <!-- CSS stylesheets =============================================================== -->
+        <!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/styles/styles.js -->
+        <!-- build:css({.tmp,dist,app}) styles/styles.css -->
+        <!-- Bootstrap core CSS -->
+        <link href="libs/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+        <!-- Custom styles for this template -->
+        <link href="styles/main.css" rel="stylesheet">
+        <!-- endbuild -->
+    </head>
+    <!-- Body of site ================================================================= -->
+    <body ng-app="adventureBuddyApp">
+        <!-- Site goes here ============================================================= -->
+        <div ng-include='"views/header.html"'></div>
+        <div ng-view></div>
+        <div ng-include='"views/footer.html"'></div>
+        <!-- Javascript (placed at end of page for faster loads) ======================== -->
+        <!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/scripts/scripts.js -->
+        <!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
+        <!-- Angular JavaScript -->
+        <script src="libs/angular/angular.js"></script>
+        <script src="libs/angular-route/angular-route.js"></script>
+        <!-- JQuery JavaScript -->
+        <script src="libs/jquery/dist/jquery.js"></script>
+        <!-- Bootstrap JavaScript -->
+        <script src="libs/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="libs/bootstrap/js/carousel.js"></script>
+        <!-- Site JavaScript -->
+        <script src="scripts/main.js"></script>
+        <!-- endbuild -->
+        <!--  This comment will cause grunt-usemin to remove this script when compiling to dist. -->
+        <!-- build:removeThis -->
+        <!--  This keeps the livereload feature running when I grunt serve and redirect to it through NGINX. -->
+        <script src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script>
+        <!-- endbuild -->
+    </body>
 </html>

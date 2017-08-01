@@ -1,31 +1,36 @@
-
 <div class="spacer">
     &nbsp;
 </div>
-
 <div class="container marketing">
-
-	<div class="row">
-		<div class="col-lg-12">
-		
-			<h1>Sign Up</h1>
-			<p>
-				Username: <input ng-model="newuser.username"/></br>
-				Password: <input ng-model="newuser.password" type="password" /></br>
-				Repeat Password: <input ng-model="newuser.password2" type="password" /></br>
-				<span class="loginerror">{{signupErrorMessage}}</span><br/>
-				<a class="btn btn-lg btn-primary" ng-click="signup(newuser)" role="button">Sign Up</a>
-			</p>
-			
-			<h1>Log In</h1>
-			<p> 
-				Username: <input ng-model="user.username"/></br>
-				Password: <input ng-model="user.password" type="password"/></br>
-				<span class="loginerror">{{loginErrorMessage}}</span><br/>
-				<a class="btn btn-lg btn-primary" ng-click="login(user)" role="button">Log In</a>
-			</p>
-			
-		</div>
-	</div>
-
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>Sign Up</h1>
+            <p>
+                Username:
+                <input ng-model="newuser.username" />
+                </br>
+                Password:
+                <input ng-model="newuser.password" type="password" />
+                </br>
+                Repeat Password:
+                <input ng-model="newuser.password2" type="password" />
+                </br>
+                <span class="loginerror">{{signupErrorMessage}}</span>
+                <br/>
+                <a class="btn btn-lg btn-primary" ng-click="signup(newuser)" role="button">Sign Up</a>
+            </p>
+            <h1>Log In</h1>
+            <p>
+                Username:
+                <input ng-model="user.username" />
+                </br>
+                Password:
+                <input ng-model="user.password" type="password" />
+                </br>
+                <span class="loginerror">{{loginErrorMessage}}</span>
+                <br/>
+                <a class="btn btn-lg btn-primary" ng-click="login(user)" role="button">Log In</a>
+            </p>
+        </div>
+    </div>
 </div>
