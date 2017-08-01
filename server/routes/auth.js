@@ -2,26 +2,26 @@ var db = require("../models");
 
 module.exports = function(app, passport) {
     // process the login form
-    app.post("/login", passport.authenticate('local-login'), function(req, res) {
+    app.post("/node/login", passport.authenticate('local-login'), function(req, res) {
 	  console.log("Login request: %s\n",JSON.stringify(req.user));
       res.json(req.user);
     });
 
     // handle logout
-    app.post("/logout", function(req, res) {
+    app.post("/node/logout", function(req, res) {
 	  console.log("Logout request: %s\n",JSON.stringify(req.user));
       req.logOut();
       res.send(200);
     })
 
     // loggedin
-    app.get("/loggedin", function(req, res) {
+    app.get("/node/loggedin", function(req, res) {
 	  console.log("IsLoggedIn request: %s\n",JSON.stringify(req.user));
       res.send(req.isAuthenticated() ? req.user : '0');
     });
 
     // signup
-    app.post("/signup", function(req, res) {
+    app.post("/node/signup", function(req, res) {
 	  console.log("Signup request: %s\n",JSON.stringify(req.user));
       db.User.findOne({
         username: req.body.username
