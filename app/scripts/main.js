@@ -6,6 +6,38 @@
  
 var app = angular.module('adventureBuddyApp', ['ngRoute']);
 
+// Function to check if the user is logged in =================================
+
+var checkLoggedin = function($q, $timeout, $http, $location, $rootScope) {
+	var deferred = $q.defer();
+
+	$http.get('http://localhost:3000/loggedin')
+		.then(
+			function successCallback(response) {
+				$rootScope.errorMessage = null;
+				var user = response.data;
+				//User is Authenticated
+				if (user !== '0') {
+					console.log('User %s is logged in.\n',JSON.stringify(user));
+					$rootScope.currentUser = user;
+					deferred.resolve();
+				} 
+				//User is not Authenticated
+				else { 
+					console.log('You gotta log in first!\n');
+					$rootScope.errorMessage = 'You need to log in.';
+					$rootScope.currentUser = null;
+					deferred.reject();
+					$location.url('/login');
+				}
+			},
+			function errorCallback() {
+				console.log('Something fucked up!\n');
+			}
+		);
+	return deferred.promise;
+};
+
 // Configure the Routes =======================================================
  
 app.config(function ($routeProvider, $locationProvider) {
@@ -18,11 +50,12 @@ app.config(function ($routeProvider, $locationProvider) {
     // Home
     .when('/', {templateUrl: 'views/home.html', controller: 'PageCtrl'})
     // Pages
-    .when('/about', {templateUrl: 'views/about.html', controller: 'PageCtrl'})
-    .when('/gallery', {templateUrl: 'views/gallery.html', controller: 'PageCtrl'})
-    .when('/tos', {templateUrl: 'views/terms.html', controller: 'PageCtrl'})
-    .when('/privacy', {templateUrl: 'views/privacy.html', controller: 'PageCtrl'})
-    .when('/login', {templateUrl: 'views/loginsignup.html', controller: 'PageCtrl'})
+    .when('/about',   {templateUrl: 'views/about.html',       controller: 'PageCtrl'})
+    .when('/gallery', {templateUrl: 'views/gallery.html',     controller: 'PageCtrl'})
+    .when('/tos',     {templateUrl: 'views/terms.html',       controller: 'PageCtrl'})
+    .when('/privacy', {templateUrl: 'views/privacy.html',     controller: 'PageCtrl'})
+    .when('/login',   {templateUrl: 'views/loginsignup.html', controller: 'LoginSignupCtrl'})
+	.when('/profile', {templateUrl: 'views/profile.html',     resolve: {logincheck: checkLoggedin}})
     // else 404
     .otherwise('/404', {templateUrl: '404.html', controller: 'PageCtrl'});
 	
@@ -30,19 +63,107 @@ app.config(function ($routeProvider, $locationProvider) {
 	if(window.history && window.history.pushState)
 	{
 		$locationProvider.html5Mode(true);
-		//TODO: load this in an old browser, I think it will break.
-		//TODO: this and the associated removal of all the #'s apparently will break the minifier
+		//TODO: this will probably just break in an old browser.
 	}
 });
 
-// Controls all other Pages ===================================================
+// Controls the Navbar ========================================================
  
-app.controller('PageCtrl', function ($scope,$location) {
+app.controller('PageCtrl', function ($rootScope, $scope, $http, $location) {
 	
 	//Highlights the links as we move around.
 	$scope.isActive = function (viewLocation) { 
 		return viewLocation === $location.path();
     };
+	
+	//Provides a callback for the logout button
+	$scope.logout = function() {
+	  console.log('Logging out...\n');
+      $http.post("http://localhost:3000/logout")
+        .then(function() {
+          $rootScope.currentUser = null;
+          $location.url("/");
+        });
+    };
+});
+
+// Controls the Login/Signup page =============================================
+
+app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location) {
+  
+	//Provides a function to handle the signup button
+	$scope.signup = function(newuser) {
+		//If the passwords match,
+		if (newuser.password === newuser.password2) {
+			//Post to the signup URL
+			console.log('Signing up new user %s...\n',JSON.stringify(newuser));
+			$http.post('http://localhost:3000/signup', newuser)
+			//Process the response
+			.then(
+				function successCallback(response) {
+					console.log('Response is %s...\n',JSON.stringify(response));
+					//If we were successful, save user data and redirect to profile page
+					if(response.data!==null){
+						$rootScope.currentUser = response.data;
+						console.log('Now logged in as %s...\n',JSON.stringify($rootScope.currentUser ));
+						$location.url("/profile");
+						//TODO: get this to redirect
+					}
+					//If we failed, print an error message saying the user is already registered
+					else{
+						console.log('Response is %s...\n',JSON.stringify(response));
+						console.log('Error: Username is already registered.\n');
+						$scope.signupErrorMessage = 'Error: Username is already registered.';
+						$scope.loginErrorMessage = '';
+						newuser.password = '';
+						newuser.password2 = '';
+						$scope.user.username = '';
+						$scope.user.password = '';
+					}
+				}
+			);
+		}
+		//Handle the case where the passwords do not match.
+		else {
+			console.log('Passwords did not match.\n');
+			$scope.signupErrorMessage = 'Error: Passwords did not match.';
+			$scope.loginErrorMessage = '';
+			newuser.password = '';
+			newuser.password2 = '';
+			$scope.user.username = '';
+			$scope.user.password = '';
+		}	  
+	}; 
+  
+	//Provides a function to handle the login button
+	$scope.login = function(user) {
+		//Post to the login URL
+		console.log('Logging in user %s...\n',JSON.stringify(user));
+		$http.post('http://localhost:3000/login', user)
+		//Process the response
+		.then(
+			//If we were successful, save user data and redirect to profile page
+			function successCallback(response) {
+				console.log('Response is %s...\n',JSON.stringify(response));
+				$rootScope.currentUser = response.data;
+				console.log('Now logged in as %s...\n',JSON.stringify($rootScope.currentUser ));
+				$location.url("/profile");
+				//TODO: get this to redirect
+			},
+			//If we failed, handle the 401 and print an error message saying the username or password is wrong
+			function errorCallback(response) {
+				console.log('Response is %s...\n',JSON.stringify(response));
+				console.log('Error: Incorrect username or password.\n');
+				$scope.loginErrorMessage = 'Error: Incorrect username or password.';
+				$scope.signupErrorMessage = '';
+				user.password = '';
+				$scope.newuser.username = '';
+				$scope.newuser.password = '';
+				$scope.newuser.password2 = '';
+			}
+		);
+	};
+  
 });
 
 // Carousel handler ===========================================================

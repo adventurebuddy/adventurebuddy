@@ -14,6 +14,12 @@ body {
     height: 95px;
 }
 
+/*warning span for login error messages*/
+.loginerror
+{
+    color:red;
+}
+
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 
