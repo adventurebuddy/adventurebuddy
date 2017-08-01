@@ -97,7 +97,8 @@ module.exports = function(grunt)
             {
                 options:
                 {
-                    open: true,
+					//Make it load on port 80 so NGINX can proxy requests for static files to port 9000 and /node to port 3000
+                    open: 'http://localhost/',
                     middleware: function(connect)
                     {
                         return [
