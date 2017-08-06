@@ -3,3 +3,6 @@
 /.tmp
 /.sass-cache
 /app/libs
+/server/nginx/logs/error.log
+/server/nginx/logs/access.log
+/server/nginx/temp/pid.txt

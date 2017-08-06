@@ -97,8 +97,7 @@ module.exports = function(grunt)
             {
                 options:
                 {
-					//Make it load on port 80 so NGINX can proxy requests for static files to port 9000 and /node to port 3000
-                    open: 'http://localhost/',
+					open:'http://localhost',
                     middleware: function(connect)
                     {
                         return [
@@ -120,7 +119,7 @@ module.exports = function(grunt)
             {
                 options:
                 {
-                    port: 9001,
+                    port: true,
                     middleware: function(connect)
                     {
                         return [
@@ -607,12 +606,6 @@ module.exports = function(grunt)
             'connect:livereload',
             'watch'
         ]);
-    });
-
-    grunt.registerTask('server', 'DEPRECATED TASK. Use the "serve" task instead', function(target)
-    {
-        grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-        grunt.task.run(['serve:' + target]);
     });
 
     //removed karma task for now; reconfigure later - ADH
