@@ -22,7 +22,7 @@ To run the server, run 'node server/server.js'.  You should run this while the c
 
 To build, run 'grunt'.  This will minify and uglify all your scripts and css and put them in the /dist directory.
 
-To start local servers for NGINX, the Adventure Buddy node.js app, and mongodb, run startDevServers.bat.  Note that node, nginx and mongod must be on your path.  Running this script will kill all active instances of node, mongod or nginx.
+To start local servers for NGINX, the Adventure Buddy node.js app, and mongodb, run startDevServers.bat from the root directory of the repository.  Note that node, nginx and mongod must be installed and on your system path.  Running this script will kill all active instances of node, mongod or nginx and then restart them, so if you are running grunt server or something like that it will die when you run this script.
 
 Once the dev servers are running, you can test serve the pages using Grunt.  To serve the non-minified version on the local machine, run 'grunt serve'.  This will start a web server in the app folder and open your browser.
 

@@ -80,10 +80,15 @@ app.config(function($routeProvider, $locationProvider)
             templateUrl: 'views/privacy.html',
             controller: 'PageCtrl'
         })
+        .when('/signup',
+        {
+            templateUrl: 'views/signup.html',
+            controller: 'SignupCtrl'
+        })
         .when('/login',
         {
-            templateUrl: 'views/loginsignup.html',
-            controller: 'LoginSignupCtrl'
+            templateUrl: 'views/login.html',
+            controller: 'LoginCtrl'
         })
         .when('/profile',
         {
@@ -132,60 +137,248 @@ app.controller('PageCtrl', function($rootScope, $scope, $http, $location)
     };
 });
 
-// Controls the Login/Signup page =============================================
+// Controls the Signup page ===================================================
 
-app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
+app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
 {
+	//Initialize the signup form.
+	$scope.months = ['--Month--','January','February','March','April','May','June','July','August','September','October','November','December'];
+	$scope.daysInEachMonth = [0,31,29,31,30,31,30,31,31,30,31,30,31];
+	$scope.days = ['--Day--'];
+	for(var i=1;i<=31;i++)
+	{
+		$scope.days.push(i.toString());
+	}
+	$scope.years = ['--Year--'];
+	var currentYear = new Date().getFullYear();
+	for (i = 0; i < 121; i++) 
+	{ 
+		$scope.years.push((currentYear-i).toString());
+	}
+	$scope.newuser = 
+	{
+		username: '',
+		email: '',
+		email2: '',
+		password: '',
+		password2: '',
+		dobMonth: $scope.months[0],
+		dobDay: $scope.days[0],
+		dobYear: $scope.years[0],
+		agree:''
+	};
+	$scope.pswdStrengthMessage = 'Invalid';
 
-    //Provides a function to handle the signup button
+    //Highlights the links as we move around.
+    $scope.isActive = function(viewLocation)
+    {
+        return viewLocation === $location.path();
+    };
+	
+	//Check if the username is valid
+	$scope.checkUsernameValid = function(newuser)
+	{		
+		$scope.usernameValidErrorMessage = '';
+		if(newuser.username.length === 0)
+		{
+			$scope.usernameValidErrorMessage = 'You must enter a username.';
+			return;
+		}
+		if(newuser.username.length < 6)
+		{
+			$scope.usernameValidErrorMessage = 'Username must be 6 or more characters long.';
+			return;
+		}
+		var alphaNumRe = new RegExp('[^A-Za-z0-9]');
+		if(alphaNumRe.test(newuser.username))
+		{
+			$scope.usernameValidErrorMessage = 'Username must contain only letters and numbers.';
+		}
+	};
+	
+	//Check if the email is valid
+	$scope.checkEmailValid = function(newuser)
+	{		
+		$scope.emailValidErrorMessage = '';
+		var looksLikeAnEmail = new RegExp('.+@.+\\..+');
+		if(!looksLikeAnEmail.test(newuser.email))
+		{
+			$scope.emailValidErrorMessage = 'Invalid email address.';
+		}
+	};
+	
+	//Check if the emails match
+	$scope.checkEmailMatch = function(newuser)
+	{
+		$scope.emailMatchErrorMessage = '';
+        if (newuser.email !== newuser.email2)
+        {
+            $scope.emailMatchErrorMessage += 'Emails do not match.';
+        }
+	};
+	
+	//Check if the password is valid
+	$scope.checkPswdValid = function(newuser)
+	{
+		$scope.pswdValidErrorMessage = '';
+		switch(zxcvbn(newuser.password).score)
+		{
+			case 0:
+			case 1:
+				$scope.pswdStrengthMessage = 'Weak';
+				break;
+			case 2:
+				$scope.pswdStrengthMessage = 'Moderate';
+				break;
+			case 3:
+				$scope.pswdStrengthMessage = 'Strong';
+				break;
+			default:
+				$scope.pswdStrengthMessage = 'Very Strong';
+		}
+		$scope.pswdMatchErrorMessage = '';
+        if (newuser.password.length<8)
+        {
+            $scope.pswdMatchErrorMessage += 'Password must be at least 8 characters.';
+			$scope.pswdStrengthMessage = 'Invalid';
+        }
+	};
+	
+	//Check if the passwords match
+	$scope.checkPswdMatch = function(newuser)
+	{		
+		$scope.pswdMatchErrorMessage = '';
+        if (newuser.password !== newuser.password2)
+        {
+            $scope.pswdMatchErrorMessage += 'Passwords do not match.';
+        }
+	};
+	
+	//To comply with COPPA, if they are under 13 we cannot issue an error message.
+	//Only issue an error message if the birthdate is not filled in or is invalid, 
+	//like February 30th or something.
+	
+	//Check if the DOB Month is valid.
+	$scope.checkDobMonthValid = function(newuser)
+	{		
+		$scope.dobMonthValidErrorMessage = '';
+		if(newuser.dobMonth===$scope.months[0])
+		{
+			$scope.dobMonthValidErrorMessage = 'You must select a month.';
+		}
+	};
+	
+	//Check if the DOB Year is valid.
+	$scope.checkDobYearValid = function(newuser)
+	{	
+		$scope.dobYearValidErrorMessage = '';
+		if(newuser.dobYear===$scope.years[0])
+		{
+			$scope.dobYearValidErrorMessage = 'You must select a year.';
+		}
+	};
+	
+	//Check if the DOB Day is valid.
+	$scope.checkDobDayValid = function(newuser)
+	{	
+		$scope.dobDayValidErrorMessage = '';
+		if(newuser.dobDay===$scope.days[0])
+		{
+			$scope.dobDayValidErrorMessage = 'You must select a day.';
+			return;
+		}
+		for(var i=1;i<$scope.months.length;i++)
+		{
+			if(newuser.dobMonth === $scope.months[i])
+			{
+				//TODO: check if it is a leap year
+				if(newuser.dobDay>$scope.daysInEachMonth[i])
+				{
+					$scope.dobDayValidErrorMessage = 'Invalid day of month.';
+				}
+				break;
+			}
+		}
+		
+	};
+	
+	//Check if they accepted the TOS
+	$scope.checkTosValid = function(newuser)
+	{		
+		$scope.tosErrorMessage = '';
+        if (!newuser.agree)
+        {
+            $scope.tosErrorMessage = 'You must accept the terms of service.';
+        }
+	};
+	
+    //Handle the signup button
     $scope.signup = function(newuser)
     {
-        //If the passwords match,
-        if (newuser.password === newuser.password2)
-        {
-            //Post to the signup URL
-            console.log('Signing up new user %s...\n', JSON.stringify(newuser));
-            $http.post('node/signup', newuser)
-                //Process the response
-                .then(
-                    function successCallback(response)
-                    {
-                        console.log('Response is %s...\n', JSON.stringify(response));
-                        //If we were successful, save user data and redirect to profile page
-                        if (response.data !== null)
-                        {
-                            $rootScope.currentUser = response.data;
-                            console.log('Now logged in as %s...\n', JSON.stringify($rootScope.currentUser));
-                            $location.url('/profile');
-                        }
-                        //If we failed, print an error message saying the user is already registered
-                        else
-                        {
-                            console.log('Response is %s...\n', JSON.stringify(response));
-                            console.log('Error: Username is already registered.\n');
-                            $scope.signupErrorMessage = 'Error: Username is already registered.';
-                            $scope.loginErrorMessage = '';
-                            newuser.password = '';
-                            newuser.password2 = '';
-                            $scope.user.username = '';
-                            $scope.user.password = '';
-                        }
-                    }
-                );
-        }
-        //Handle the case where the passwords do not match.
-        else
-        {
-            console.log('Passwords did not match.\n');
-            $scope.signupErrorMessage = 'Error: Passwords did not match.';
-            $scope.loginErrorMessage = '';
-            newuser.password = '';
-            newuser.password2 = '';
-            $scope.user.username = '';
-            $scope.user.password = '';
-        }
+		//Validate the form input
+		console.log('Validating form input %s...\n', JSON.stringify(newuser));
+		$scope.checkUsernameValid(newuser);
+		$scope.checkEmailValid(newuser);
+		$scope.checkEmailMatch(newuser);
+		$scope.checkPswdValid(newuser);
+		$scope.checkPswdMatch(newuser);
+		$scope.checkDobMonthValid(newuser);
+		$scope.checkDobDayValid(newuser);
+		$scope.checkDobYearValid(newuser);
+		$scope.checkTosValid(newuser);
+		
+		//If it is valid,
+		if($scope.tosErrorMessage === '' &&
+		   $scope.usernameValidErrorMessage === '' &&
+		   $scope.emailMatchErrorMessage === '' &&
+		   $scope.pswdStrengthMessage !== 'Invalid' &&
+		   $scope.pswdMatchErrorMessage === '' &&
+		   $scope.dobYearValidErrorMessage === '' &&
+		   $scope.dobMonthValidErrorMessage === '' &&
+		   $scope.dobDayValidErrorMessage === '' &&
+		   $scope.tosErrorMessage === '')
+		{
+		
+			//Post to the signup URL
+			console.log('Signing up new user %s...\n', JSON.stringify(newuser));
+			$http.post('node/signup', newuser)
+				//Process the response
+				.then(
+					function successCallback(response)
+					{
+						console.log('Response is %s...\n', JSON.stringify(response));
+						//If we were successful, save user data and redirect to profile page
+						if (response.data !== null)
+						{
+							$rootScope.currentUser = response.data;
+							console.log('Now logged in as %s...\n', JSON.stringify($rootScope.currentUser));
+							$location.url('/profile');
+						}
+						//If we failed, print an error message saying the user is already registered
+						else
+						{
+							console.log('Response is %s...\n', JSON.stringify(response));
+							console.log('Error: Username is already registered.\n');
+							$scope.usernameValidErrorMessage = 'Error: Username or email is already registered.';
+						}
+					}
+				);
+		}
     };
+});
 
+// Controls the Login page ====================================================
+
+app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
+{
+	//Initialize the login form.
+
+    //Highlights the links as we move around.
+    $scope.isActive = function(viewLocation)
+    {
+        return viewLocation === $location.path();
+    };
+	
     //Provides a function to handle the login button
     $scope.login = function(user)
     {
@@ -208,11 +401,6 @@ app.controller('LoginSignupCtrl', function($scope, $http, $rootScope, $location)
                     console.log('Response is %s...\n', JSON.stringify(response));
                     console.log('Error: Incorrect username or password.\n');
                     $scope.loginErrorMessage = 'Error: Incorrect username or password.';
-                    $scope.signupErrorMessage = '';
-                    user.password = '';
-                    $scope.newuser.username = '';
-                    $scope.newuser.password = '';
-                    $scope.newuser.password2 = '';
                 }
             );
     };

@@ -27,11 +27,13 @@
     <body ng-app="adventureBuddyApp">
         <!-- Site goes here ============================================================= -->
         <div ng-include='"views/header.html"'></div>
-        <div ng-view></div>
+        <div ng-view id="top_of_page"></div>
         <div ng-include='"views/footer.html"'></div>
         <!-- Javascript (placed at end of page for faster loads) ======================== -->
         <!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/scripts/scripts.js -->
         <!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
+		<!-- ZXCVBN for password strength checker -->
+		<script src="libs/zxcvbn/dist/zxcvbn.js"></script>
         <!-- Angular JavaScript -->
         <script src="libs/angular/angular.js"></script>
         <script src="libs/angular-route/angular-route.js"></script>
