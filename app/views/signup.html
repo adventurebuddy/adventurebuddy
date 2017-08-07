@@ -4,42 +4,55 @@
 <div class="container marketing" ng-init="init()">
     <div class="row">
         <div class="form-container">
-			<h1>Sign Up</h1><hr/>
-			<form>
-				<div class="form-group">
-					<label>Username</label><br/>
-					<input ng-model="newuser.username" ng-change="checkUsernameValid(newuser)" placeholder = "Enter username"/><br/>
-					<span class="loginerror">{{usernameValidErrorMessage}}</span>
-				</div>
-				<div class="form-group">
-					<label>Email Address</label><br/>
-					<input ng-model="newuser.email" ng-change="checkEmailValid(newuser)" placeholder = "Enter email address"/><br/>
-					<input ng-model="newuser.email2" ng-change="checkEmailMatch(newuser)" placeholder = "Repeat email address"/><br/>
-					<span class="loginerror">{{emailValidErrorMessage}} {{emailMatchErrorMessage}}</span>
-				</div>
-				<div class="form-group">
-					<label>Password</label>
-					<span class="pswdMeter" ng-class="{'color-red': pswdStrengthMessage === 'Weak', 'color-orange': pswdStrengthMessage === 'Moderate', 'color-green': (pswdStrengthMessage === 'Strong'||pswdStrengthMessage === 'Very Strong')}">Strength: {{pswdStrengthMessage}}</span><br/>
-					<input ng-model="newuser.password" type="password" ng-change="checkPswdValid(newuser)" placeholder = "Enter your password"/><br/>
-					<input ng-model="newuser.password2" type="password" ng-change="checkPswdMatch(newuser)" placeholder = "Repeat password"/><br/>					
-					<span class="loginerror">{{pswdMatchErrorMessage}}</span>
-				</div>
-				<div class="form-group">
-					<label>Date of Birth</label><br/>
-					<select ng-model="newuser.dobMonth" ng-options="x for x in months" ng-change="checkDobMonthValid(newuser)">
-					</select>
-					<select ng-model="newuser.dobDay" ng-options="x for x in days" ng-change="checkDobDayValid(newuser)">
-					</select>
-					<select ng-model="newuser.dobYear" ng-options="x for x in years" ng-change="checkDobYearValid(newuser)">
-					</select><br/>
-					<span class="loginerror">{{dobDayValidErrorMessage}} {{dobMonthValidErrorMessage}} {{dobYearValidErrorMessage}}</span>
-				</div>
-				<br/>I have read and agree to the <a href="/tos" target="_blank">Terms of Service</a>.
-				<input type="checkbox" ng-model="newuser.agree" ng-change="checkTosValid(newuser)"/><br/>
-				<span class="loginerror">{{tosErrorMessage}}</span><br/>
-				<div class="signupbtn">
-					<a class="btn btn-lg btn-primary" ng-click="signup(newuser)" role="button">Sign Up</a>
-				</div>
+            <h1>Sign Up</h1>
+            <hr/>
+            <form>
+                <div class="form-group">
+                    <label>Username</label>
+                    <br/>
+                    <input ng-model="newuser.username" ng-change="checkUsernameValid(newuser)" placeholder="Enter username" />
+                    <br/>
+                    <span class="loginerror">{{usernameValidErrorMessage}}</span>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <br/>
+                    <input ng-model="newuser.email" ng-change="checkEmailValid(newuser)" placeholder="Enter email address" />
+                    <br/>
+                    <input ng-model="newuser.email2" ng-change="checkEmailMatch(newuser)" placeholder="Repeat email address" />
+                    <br/>
+                    <span class="loginerror">{{emailValidErrorMessage}} {{emailMatchErrorMessage}}</span>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <span class="pswdMeter" ng-class="{'color-red': pswdStrengthMessage === 'Weak', 'color-orange': pswdStrengthMessage === 'Moderate', 'color-green': (pswdStrengthMessage === 'Strong'||pswdStrengthMessage === 'Very Strong')}">Strength: {{pswdStrengthMessage}}</span>
+                    <br/>
+                    <input ng-model="newuser.password" type="password" ng-change="checkPswdValid(newuser)" placeholder="Enter your password" />
+                    <br/>
+                    <input ng-model="newuser.password2" type="password" ng-change="checkPswdMatch(newuser)" placeholder="Repeat password" />
+                    <br/>
+                    <span class="loginerror">{{pswdMatchErrorMessage}}</span>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <br/>
+                    <select ng-model="newuser.dobMonth" ng-options="x for x in months" ng-change="checkDobMonthValid(newuser)">
+                    </select>
+                    <select ng-model="newuser.dobDay" ng-options="x for x in days" ng-change="checkDobDayValid(newuser)">
+                    </select>
+                    <select ng-model="newuser.dobYear" ng-options="x for x in years" ng-change="checkDobYearValid(newuser)">
+                    </select>
+                    <br/>
+                    <span class="loginerror">{{dobDayValidErrorMessage}} {{dobMonthValidErrorMessage}} {{dobYearValidErrorMessage}}</span>
+                </div>
+                <br/>I have read and agree to the <a href="/tos" target="_blank">Terms of Service</a>.
+                <input type="checkbox" ng-model="newuser.agree" ng-change="checkTosValid(newuser)" />
+                <br/>
+                <span class="loginerror">{{tosErrorMessage}}</span>
+                <br/>
+                <div class="signupbtn">
+                    <button class="btn btn-lg btn-primary" ng-click="signup(newuser)" role="button">Sign Up</a>
+                </div>
             </form>
         </div>
     </div>

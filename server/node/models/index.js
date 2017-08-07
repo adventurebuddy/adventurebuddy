@@ -1,4 +1,4 @@
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/passport-db");
-mongoose.set("debug", true);
+mongoose.connect("mongodb://localhost/passport-db", { useMongoClient: true });
+mongoose.set("debug", false);
 module.exports.User = require("./user");
