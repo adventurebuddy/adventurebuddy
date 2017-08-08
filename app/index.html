@@ -32,23 +32,25 @@
         <!-- Javascript (placed at end of page for faster loads) ======================== -->
         <!-- This comment will cause grunt-usemin to concatenate and minify all of these files into dist/scripts/scripts.js -->
         <!-- build:js({.tmp,dist,app}) scripts/scripts.js -->
-		<!-- ZXCVBN for password strength checker -->
-		<script src="libs/zxcvbn/dist/zxcvbn.js"></script>
         <!-- Angular JavaScript -->
-        <script src="libs/angular/angular.js"></script>
-        <script src="libs/angular-route/angular-route.js"></script>
+        <script type="text/javascript" src="libs/angular/angular.js"></script>
+        <script type="text/javascript" src="libs/angular-route/angular-route.js"></script>
         <!-- JQuery JavaScript -->
-        <script src="libs/jquery/dist/jquery.js"></script>
+        <script type="text/javascript" src="libs/jquery/dist/jquery.js"></script>
         <!-- Bootstrap JavaScript -->
-        <script src="libs/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="libs/bootstrap/js/carousel.js"></script>
+        <script type="text/javascript" src="libs/bootstrap/dist/js/bootstrap.js"></script>
+        <script type="text/javascript" src="libs/bootstrap/js/carousel.js"></script>
+		<!--reCAPTCHA scripts-->
+		<script type="text/javascript" src="/libs/angular-recaptcha/release/angular-recaptcha.js"></script>
+		<!-- ZXCVBN for password strength checker -->
+		<script type="text/javascript" src="libs/zxcvbn/dist/zxcvbn.js"></script>
         <!-- Site JavaScript -->
-        <script src="scripts/main.js"></script>
+        <script type="text/javascript" src="scripts/main.js"></script>
         <!-- endbuild -->
         <!--  This comment will cause grunt-usemin to remove this script when compiling to dist. -->
         <!-- build:removeThis -->
         <!--  This keeps the livereload feature running when I grunt serve and redirect to it through NGINX. -->
-        <script src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script>
+        <script type="text/javascript" src="//localhost:35729/livereload.js?snipver=1" async="" defer=""></script>
         <!-- endbuild -->
     </body>
 </html>

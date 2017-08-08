@@ -4,7 +4,7 @@
 
 // Main AngularJS Web Application =============================================
 
-var app = angular.module('adventureBuddyApp', ['ngRoute']);
+var app = angular.module('adventureBuddyApp', ['ngRoute','vcRecaptcha']);
 
 // Function to check if the user is logged in =================================
 

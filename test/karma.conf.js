@@ -30,6 +30,7 @@ module.exports = function(config) {
       'app/libs/angular-sanitize/angular-sanitize.js',
       'app/libs/angular-touch/angular-touch.js',
       'app/libs/zxcvbn/dist/zxcvbn.js',
+      'app/libs/angular-recaptcha/release/angular-recaptcha.js',
       'app/libs/angular-mocks/angular-mocks.js',
       // endbower
       'app/scripts/**/*.js',
