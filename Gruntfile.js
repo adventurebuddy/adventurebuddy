@@ -97,7 +97,7 @@ module.exports = function(grunt)
             {
                 options:
                 {
-                    open: 'http://localhost',
+                    open: 'http://127.0.0.1',
                     middleware: function(connect)
                     {
                         return [
@@ -138,7 +138,7 @@ module.exports = function(grunt)
             {
                 options:
                 {
-                    open: 'http://localhost',
+                    open: 'http://127.0.0.1',
                     base: '<%= yeoman.dist %>'
                 }
             }
