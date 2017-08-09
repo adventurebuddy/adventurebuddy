@@ -12,8 +12,8 @@
 
 @sleep 5
 
-@echo "Starting node server/node/server.js..."
-@start node "server\node\server.js"
-
 @echo "starting NGINX..."
 @start nginx -c server\nginx\conf\nginx.conf
+
+@echo "Starting node server/node/server.js..."
+@start node server\node\server.js >server\node\logs\adventurebuddy.log

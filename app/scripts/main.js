@@ -4,7 +4,7 @@
 
 // Main AngularJS Web Application =============================================
 
-var app = angular.module('adventureBuddyApp', ['ngRoute','vcRecaptcha']);
+var app = angular.module('adventureBuddyApp', ['ngRoute', 'vcRecaptcha']);
 
 // Function to check if the user is logged in =================================
 
@@ -12,7 +12,7 @@ var checkLoggedin = function($q, $timeout, $http, $location, $rootScope)
 {
     var deferred = $q.defer();
 
-    $http.get('node/loggedin')
+    $http.get('node/login')
         .then(
             function successCallback(response)
             {
@@ -128,7 +128,7 @@ app.controller('PageCtrl', function($rootScope, $scope, $http, $location)
     $scope.logout = function()
     {
         console.log('Logging out...\n');
-        $http.post('node/logout')
+        $http.delete('node/login')
             .then(function()
             {
                 $rootScope.currentUser = null;
@@ -139,7 +139,7 @@ app.controller('PageCtrl', function($rootScope, $scope, $http, $location)
 
 // Controls the Signup page ===================================================
 
-app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
+app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootScope, $location)
 {
     //Initialize the signup form.
     $scope.months = ['--Month--', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -164,7 +164,8 @@ app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
         dobMonth: $scope.months[0],
         dobDay: $scope.days[0],
         dobYear: $scope.years[0],
-        agree: ''
+        agree: '',
+        recaptchaResponse: ''
     };
     $scope.pswdStrengthMessage = 'Invalid';
 
@@ -174,6 +175,12 @@ app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
         return viewLocation === $location.path();
     };
 
+	//Saves the recaptcha widget id.  Required for SPAs.
+	$scope.setRecaptchaWidgetId = function(widgetid)
+	{
+		$scope.recaptchaWidgetId = widgetid;
+	};
+	
     //Check if the username is valid
     $scope.checkUsernameValid = function(newuser)
     {
@@ -311,6 +318,16 @@ app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
         }
     };
 
+    //Check if they checked the reCaptcha
+    $scope.checkRecaptchaChecked = function()
+    {
+        $scope.reCaptchaErrorMessage = '';
+        if (vcRecaptchaService.getResponse($scope.recaptchaWidgetId) === '')
+        {
+            $scope.reCaptchaErrorMessage = 'You must complete the CAPTCHA.';
+        }
+    };
+
     //Handle the signup button
     $scope.signup = function(newuser)
     {
@@ -325,6 +342,7 @@ app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
         $scope.checkDobDayValid(newuser);
         $scope.checkDobYearValid(newuser);
         $scope.checkTosValid(newuser);
+        $scope.checkRecaptchaChecked();
 
         //If it is valid,
         if ($scope.tosErrorMessage === '' &&
@@ -335,12 +353,16 @@ app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
             $scope.dobYearValidErrorMessage === '' &&
             $scope.dobMonthValidErrorMessage === '' &&
             $scope.dobDayValidErrorMessage === '' &&
-            $scope.tosErrorMessage === '')
+            $scope.tosErrorMessage === '' &&
+            $scope.reCaptchaErrorMessage === '')
         {
+
+            //Save the recaptcha response
+            $scope.newuser.recaptchaResponse = vcRecaptchaService.getResponse($scope.recaptchaWidgetId);
 
             //Post to the signup URL
             console.log('Signing up new user %s...\n', JSON.stringify(newuser));
-            $http.post('node/signup', newuser)
+            $http.post('node/user', newuser)
                 //Process the response
                 .then(
                     function successCallback(response)
@@ -356,9 +378,37 @@ app.controller('SignupCtrl', function($scope, $http, $rootScope, $location)
                         //If we failed, print an error message saying the user is already registered
                         else
                         {
-                            console.log('Response is %s...\n', JSON.stringify(response));
-                            console.log('Error: Username is already registered.\n');
-                            $scope.usernameValidErrorMessage = 'Error: Username or email is already registered.';
+                            console.log('Response is null, weird\n', JSON.stringify(response));
+							$scope.reCaptchaErrorMessage = 'Server error, please try again later.';
+                        }
+                    },
+                    function errorCallback(response)
+                    {
+                        console.log('Response is %s...\n', JSON.stringify(response));
+                        //If we were successful, save user data and redirect to profile page
+                        if (response.data !== null)
+                        {
+							console.log('Error, response is:\n', JSON.stringify(response));
+							switch(response.data.errorcode)
+							{
+								case 1:
+									$scope.usernameValidErrorMessage = 'That username is already registered.';
+									break;
+								case 2:
+									$scope.emailValidErrorMessage = 'That email is already registered.';
+									break;
+								case 3:
+									$scope.reCaptchaErrorMessage = 'Sorry, but Google tells us that you are a robot.  Try again later.';
+									break;
+								default:
+									$scope.reCaptchaErrorMessage = 'Server error, please try again later.';
+							}
+                        }
+                        //If we failed, print an error message saying the user is already registered
+                        else
+                        {
+                            console.log('Response is null, weird\n', JSON.stringify(response));
+							$scope.reCaptchaErrorMessage = 'Server error, please try again later.';
                         }
                     }
                 );

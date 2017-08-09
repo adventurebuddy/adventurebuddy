@@ -18,9 +18,12 @@ var app = express();
 app.use(session(
 {
     secret: 'SETEC ASTRONOMY',
-	resave: false,
-	saveUninitialized: false ,
-	cookie: {secure: false} //TODO: should set this to true when running on server!
+    resave: false,
+    saveUninitialized: false,
+    cookie:
+    {
+        secure: false
+    } //TODO: should set this to true when running on server!
 }));
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -37,7 +40,7 @@ app.use(bodyParser.urlencoded(
 require('./routes/auth.js')(app, passport); // load our routes and pass in our app and fully configured passport
 
 //Start listening
-app.listen(3000);
+app.listen(3000, "0.0.0.0");
 console.log('+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+\n');
 console.log('|   ADVENTURE BUDDY SERVER APP   |\n');
 console.log('+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=+\n');

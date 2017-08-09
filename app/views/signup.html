@@ -6,20 +6,20 @@
         <div class="form-container">
             <h1>Sign Up</h1>
             <hr/>
-            <form>
+            <form name="signupForm">
                 <div class="form-group">
                     <label>Username</label>
                     <br/>
-                    <input class="form-field" ng-model="newuser.username" ng-change="checkUsernameValid(newuser)" placeholder="Enter username" />
+                    <input class="form-field" ng-model="newuser.username" ng-change="checkUsernameValid(newuser)" placeholder="Enter username"/>
                     <br/>
                     <span class="loginerror">{{usernameValidErrorMessage}}</span>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
                     <br/>
-                    <input class="form-field" ng-model="newuser.email" ng-change="checkEmailValid(newuser)" placeholder="Enter email address" />
+                    <input class="form-field" ng-model="newuser.email" ng-change="checkEmailValid(newuser)" placeholder="Enter email address" type="email"/>
                     <br/>
-                    <input class="form-field" ng-model="newuser.email2" ng-change="checkEmailMatch(newuser)" placeholder="Repeat email address" />
+                    <input class="form-field" ng-model="newuser.email2" ng-change="checkEmailMatch(newuser)" placeholder="Repeat email address" type="email"/>
                     <br/>
                     <span class="loginerror">{{emailValidErrorMessage}} {{emailMatchErrorMessage}}</span>
                 </div>
@@ -27,9 +27,9 @@
                     <label>Password</label>
                     <span class="pswdMeter" ng-class="{'color-red': pswdStrengthMessage === 'Weak', 'color-orange': pswdStrengthMessage === 'Moderate', 'color-green': (pswdStrengthMessage === 'Strong'||pswdStrengthMessage === 'Very Strong')}">Strength: {{pswdStrengthMessage}}</span>
                     <br/>
-                    <input class="form-field" ng-model="newuser.password" type="password" ng-change="checkPswdValid(newuser)" placeholder="Enter your password" />
+                    <input class="form-field" ng-model="newuser.password" type="password" ng-change="checkPswdValid(newuser)" placeholder="Enter your password"/>
                     <br/>
-                    <input class="form-field" ng-model="newuser.password2" type="password" ng-change="checkPswdMatch(newuser)" placeholder="Repeat password" />
+                    <input class="form-field" ng-model="newuser.password2" type="password" ng-change="checkPswdMatch(newuser)" placeholder="Repeat password"/>
                     <br/>
                     <span class="loginerror">{{pswdMatchErrorMessage}}</span>
                 </div>
@@ -46,16 +46,17 @@
                     <span class="loginerror">{{dobDayValidErrorMessage}} {{dobMonthValidErrorMessage}} {{dobYearValidErrorMessage}}</span>
                 </div>
                 <div class="form-group">
-                    <label>Terms and Conditions</label><br/>
-					I have read and agree to the <a href="/tos" target="_blank">Terms of Service</a>.
-					<input type="checkbox" ng-model="newuser.agree" ng-change="checkTosValid(newuser)" />
-					<br/>
-					<span class="loginerror">{{tosErrorMessage}}</span>
-				</div>
+                    <label>Terms and Conditions</label>
+                    <br/> I have read and agree to the <a href="/tos" target="_blank">Terms of Service</a>.
+                    <input type="checkbox" ng-model="newuser.agree" ng-change="checkTosValid(newuser)"/>
+                    <br/>
+                    <span class="loginerror">{{tosErrorMessage}}</span>
+                </div>
                 <div class="form-group">
-                    <label>Please prove that you are totally not a robot</label>
-					<div vc-recaptcha key="'6LerFCwUAAAAABNm1j9btGQ6Wem_4-m5MHuMz66D'"></div>
-				</div>
+                    <label>Please prove that you are not a robot</label>
+                    <div vc-recaptcha key="'6LerFCwUAAAAABNm1j9btGQ6Wem_4-m5MHuMz66D'" on-create="setRecaptchaWidgetId(widgetId)"></div>
+                    <span class="loginerror">{{reCaptchaErrorMessage}}</span>
+                </div>
                 <div class="signupbtn">
                     <button class="btn btn-lg btn-primary" ng-click="signup(newuser)" role="button">Sign Up</a>
                 </div>
