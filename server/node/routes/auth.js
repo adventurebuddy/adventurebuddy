@@ -4,6 +4,16 @@ var db = require("../models");
 const util = require('util');
 var request = require('request');
 
+// This turns a month name into an integer ====================================
+function getMonthFromString(mon){
+
+   var d = Date.parse(mon + "1, 2012");
+   if(!isNaN(d)){
+      return new Date(d).getMonth() + 1;
+   }
+   return -1;
+ }
+
 // Routes for passport.js authentication ======================================
 
 module.exports = function(app, passport)
@@ -84,11 +94,23 @@ module.exports = function(app, passport)
 		//To comply with COPPA, you CANNOT tell the user they were rejected because of their age.
 		//If under 13, return success but do NOT save the data and do NOT send a confirmation email.
 		//Shitty retarded law but we have to follow it. $16,000 - $40,654 fine per violation. - ADH
-		//TODO
+		var dob = new Date(parseInt(req.body.dobYear), getMonthFromString(req.body.dobMonth)-1, parseInt(req.body.dobDay));
+		var today = new Date(Date.now());
+		var years = today.getFullYear() - dob.getFullYear();
+		if(dob.getMonth()>today.getMonth() || (dob.getMonth()===today.getMonth() && dob.getDate()>today.getDate()))
+		{
+			years--;
+		}
+		//You know what, fuck it.  Just so we don't get fucked by leap years or some shit, they have to be 14. - ADH
+		if(years<14)
+		{
+			console.log('ERROR: It\'s a kid!  ABORT! ABORT!  But act like we aren\'t aborting because some very wise politicians \\s said not to.  age = %d today=%d/%d/%d dob = %d/%d/%d',years,today.getFullYear(),today.getMonth(),today.getDate(),dob.getFullYear(),dob.getMonth(),dob.getDate());
+			res.json(req.body);
+			return;
+		}
+		console.log('User is over 14, no need to shit pants.  age = %d today=%d/%d/%d dob = %d/%d/%d',years,today.getFullYear(),today.getMonth(),today.getDate(),dob.getFullYear(),dob.getMonth(),dob.getDate());
 		
         //Make sure the username or email isn't taken -------------------------
-		
-		//Callback hell!  MY EYES!  THEY FUCKING BURN!
 		
 		//Check to see if a user with this name exists in the DB
         db.User.findOne({username: req.body.username.toLowerCase()},
@@ -148,7 +170,7 @@ module.exports = function(app, passport)
 							newUser.email = req.body.email.toLowerCase();
 							newUser.emailConfirmed = false;
 							//TODO: Save email confirmation string
-							//TODO: Save user's birthdate
+							newUser.dob = dob;
 
 							//Add them to the database
 							newUser.save(function(err, user)
