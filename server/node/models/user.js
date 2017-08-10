@@ -9,6 +9,7 @@ var userSchema = mongoose.Schema(
     password: String,
     email: String,
     agree: Boolean,
+    verifyString: String,
     emailConfirmed: Boolean,
     birthdate: Date
 });

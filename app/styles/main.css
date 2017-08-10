@@ -23,6 +23,16 @@ body
 	float:right;
 }
 
+/*Make HRs visible*/
+hr {
+  border: 0;
+  clear:both;
+  width: 100%;               
+  background-color:#d0d0d0;
+  color:#b3b3b3;
+  height: 1px;
+}
+
 /*Spans for password strength meter*/
 .pswdMeter
 {
@@ -201,3 +211,4 @@ img.login-pic {
 .lead {
   text-align:center;
 }
+

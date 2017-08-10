@@ -90,6 +90,11 @@ app.config(function($routeProvider, $locationProvider)
             templateUrl: 'views/login.html',
             controller: 'LoginCtrl'
         })
+        .when('/confirm',
+        {
+            templateUrl: 'views/confirm.html',
+            controller: 'PageCtrl'
+        })
         .when('/profile',
         {
             templateUrl: 'views/profile.html',
@@ -175,12 +180,12 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
         return viewLocation === $location.path();
     };
 
-	//Saves the recaptcha widget id.  Required for SPAs.
-	$scope.setRecaptchaWidgetId = function(widgetid)
-	{
-		$scope.recaptchaWidgetId = widgetid;
-	};
-	
+    //Saves the recaptcha widget id.  Required for SPAs.
+    $scope.setRecaptchaWidgetId = function(widgetid)
+    {
+        $scope.recaptchaWidgetId = widgetid;
+    };
+
     //Check if the username is valid
     $scope.checkUsernameValid = function(newuser)
     {
@@ -372,43 +377,44 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                         if (response.data !== null)
                         {
                             $rootScope.currentUser = response.data;
-                            console.log('Now logged in as %s...\n', JSON.stringify($rootScope.currentUser));
-                            $location.url('/profile');
+                            $location.url('/confirm');
                         }
                         //If we failed, print an error message saying the user is already registered
                         else
                         {
                             console.log('Response is null, weird\n', JSON.stringify(response));
-							$scope.reCaptchaErrorMessage = 'Server error, please try again later.';
+                            $scope.reCaptchaErrorMessage = 'Server error, please try again later.';
                         }
                     },
                     function errorCallback(response)
                     {
                         console.log('Response is %s...\n', JSON.stringify(response));
-                        //If we were successful, save user data and redirect to profile page
                         if (response.data !== null)
                         {
-							console.log('Error, response is:\n', JSON.stringify(response));
-							switch(response.data.errorcode)
-							{
-								case 1:
-									$scope.usernameValidErrorMessage = 'That username is already registered.';
-									break;
-								case 2:
-									$scope.emailValidErrorMessage = 'That email is already registered.';
-									break;
-								case 3:
-									$scope.reCaptchaErrorMessage = 'Sorry, but Google tells us that you are a robot.  Try again later.';
-									break;
-								default:
-									$scope.reCaptchaErrorMessage = 'Server error, please try again later.';
-							}
+                            console.log('Error, response is:\n', JSON.stringify(response));
+                            switch (response.data.errorcode)
+                            {
+                                case 1:
+                                    $scope.usernameValidErrorMessage = 'That username is already registered.';
+                                    break;
+                                case 2:
+                                    $scope.emailValidErrorMessage = 'That email is already registered.';
+                                    break;
+                                case 3:
+                                    $scope.reCaptchaErrorMessage = 'Sorry, but Google tells us that you are a robot.  Try again later.';
+                                    break;
+                                case 4:
+                                    $scope.reCaptchaErrorMessage = 'We were unable to send a verification email to your account.';
+                                    break;
+                                default:
+                                    $scope.reCaptchaErrorMessage = 'Server error, please try again later.';
+                            }
                         }
                         //If we failed, print an error message saying the user is already registered
                         else
                         {
                             console.log('Response is null, weird\n', JSON.stringify(response));
-							$scope.reCaptchaErrorMessage = 'Server error, please try again later.';
+                            $scope.reCaptchaErrorMessage = 'Server error, please try again later.';
                         }
                     }
                 );
@@ -448,8 +454,21 @@ app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
                 function errorCallback(response)
                 {
                     console.log('Response is %s...\n', JSON.stringify(response));
-                    console.log('Error: Incorrect username or password.\n');
-                    $scope.loginErrorMessage = 'Error: Incorrect username or password.';
+					switch(response.data.errorcode)
+					{
+						case 1:
+							console.log('Error: Incorrect username or password.\n');
+							$scope.loginErrorMessage = 'Incorrect username or password.';
+							break;
+						case 2:
+							console.log('Error: User has not verified email.\n');
+							$scope.loginErrorMessage = 'You must verify your email first.  Please click the link in the email we sent.';
+							break;
+						case 3:
+							console.log('Error: Something screwed up.\n');
+							$scope.loginErrorMessage = 'Server Error.  Please try again later.';
+							break;
+					}
                 }
             );
     };
