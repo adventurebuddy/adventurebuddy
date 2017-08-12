@@ -95,6 +95,11 @@ app.config(function($routeProvider, $locationProvider)
             templateUrl: 'views/confirm.html',
             controller: 'PageCtrl'
         })
+        .when('/confirmed',
+        {
+            templateUrl: 'views/confirmed.html',
+            controller: 'PageCtrl'
+        })
         .when('/profile',
         {
             templateUrl: 'views/profile.html',
@@ -372,10 +377,10 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                 .then(
                     function successCallback(response)
                     {
-                        console.log('Response is %s...\n', JSON.stringify(response));
                         //If we were successful, save user data and redirect to profile page
                         if (response.data !== null)
                         {
+							console.log('Response is %s...\n', JSON.stringify(response));
                             $rootScope.currentUser = response.data;
                             $location.url('/confirm');
                         }
@@ -388,7 +393,6 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                     },
                     function errorCallback(response)
                     {
-                        console.log('Response is %s...\n', JSON.stringify(response));
                         if (response.data !== null)
                         {
                             console.log('Error, response is:\n', JSON.stringify(response));

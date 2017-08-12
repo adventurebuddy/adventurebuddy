@@ -196,110 +196,129 @@ module.exports = function(app, passport)
 			}
 			console.log('User passed reCAPTCHA validation. VERY GOOD HE IS A HUMAN JUST LIKE US.  WE SHOULD CHAT ABOUT OUR EMOTIONS AND INTERNAL SKELETONS');
 			
-			//Create globally unique email verification string --------------------
+			//Create the new user object ------------------------------------------
 
-			//Generate a unique verification string
+			//Generate a (probably) unique email verification string
 			var verificationString = hash(req.body);
-			var verifyUrl = 'http://127.0.0.1/node/verify?id='+verificationString;
+			
+			//Create a new user object.
+			var newUser = new db.User();
+			newUser.username = req.body.username.toLowerCase();
+			newUser.password = newUser.generateHash(req.body.password);
+			newUser.agree = req.body.agree;
+			newUser.email = req.body.email.toLowerCase();
+			newUser.emailConfirmed = false;
+			newUser.verifyString = verificationString;
+			newUser.dob = dob;
+			newUser.created = today;
 
-			//TODO: Upsert the new user atomically.  For now this is fucked if three ahoylands sign up at once. ----------------------------------
-			db.User.findOne(
+			//Upsert them into the database -----------------------------------------
+			
+			//This will insert them if no existing user has the same username or email.  
+			//If an existing user is found it will return the existing user.
+			var query = {$or:[{'username':req.body.username},{'email':req.body.email}]};
+			db.User.findOneAndUpdate(query,{$setOnInsert: newUser},{upsert:true}, function(err, doc)
+			{
+				//Handle errors
+				if (err)
 				{
-					username: req.body.username.toLowerCase()
-				},
-				function(err, user)
-				{
-					if (user)
+					console.log('ERROR: Upsert error: %s',err);
+					res.status(400).send(
 					{
-						console.log('ERROR: Username %s is already registered.\n', req.body.username.toLowerCase());
+						error: 'Server error. Please try again later.',
+						errorcode: 5
+					});
+					return;
+				}
+				if(doc!==null)
+				{
+					if(doc.email===newUser.email)
+					{
+						console.log('ERROR: Email is already registered:%s.\n', doc);
+						res.status(400).send(
+						{
+							error: 'That email is already registered.',
+							errorcode: 2
+						});
+					}
+					else
+					{
+						console.log('ERROR: Username is already registered:%s.\n', doc);
 						res.status(400).send(
 						{
 							error: 'That username is already registered.',
 							errorcode: 1
 						});
+					}
+					return;
+				}
+				
+				//User was successfully inserted.
+				console.log('Upserted user %s into database.', newUser.username);
+
+				//Send them a confirmation email with a unique link in it ------------------------------------------
+				var verifyUrl = 'http://127.0.0.1/node/verify?id='+verificationString;
+				var mailOptions = {
+					from: 'Adventure Buddy <accounts@adventure-buddy.com>',
+					to: newUser.email,
+					subject: 'Adventure awaits!  Please verify your account.',
+					text: 'To verify your account, please click the following URL:\n\n'+verifyUrl+'\n\nPlease do not respond to this email.  It was generated from an unmonitored inbox.\n\nFor questions or support, contact support@adventure-buddy.com.'
+				};
+				transporter.sendMail(mailOptions, function(error, info)
+				{
+					if (error)
+					{
+						console.log('ERROR: can\'t send verification email: '+error);
+						res.status(400).send(
+						{
+							error: 'Cannot send verification email.',
+							errorcode: 4
+						});
 						return;
 					}
-					console.log('Username %s is available.', req.body.username.toLowerCase());
-
-					//Check to see if a user with this email exists in the DB
-					db.User.findOne(
-						{
-							email: req.body.email.toLowerCase()
-						},
-						function(err, user)
-						{
-							if (user)
-							{
-								console.log('ERROR: Email %s is already registered.\n', req.body.email.toLowerCase());
-								res.status(400).send(
-								{
-									error: 'That email is already registered.',
-									errorcode: 2
-								});
-								return;
-							}
-							console.log('Email %s is available.', req.body.email.toLowerCase());
-
-                            //Create a new user object.
-                            var newUser = new db.User();
-                            newUser.username = req.body.username.toLowerCase();
-                            newUser.password = newUser.generateHash(req.body.password);
-                            newUser.agree = req.body.agree;
-                            newUser.email = req.body.email.toLowerCase();
-                            newUser.emailConfirmed = false;
-                            newUser.verifyString = verificationString;
-                            newUser.dob = dob;
-
-                            //Add them to the database
-                            newUser.save(function(err, user)
-                            {
-                                console.log('Upserted user %s into database.', newUser.username);
-
-                                //Send them a confirmation email with a unique link in it ------------------------------------------
-                                var mailOptions = {
-                                    from: 'Adventure Buddy <accounts@adventure-buddy.com>',
-                                    to: newUser.email,
-                                    subject: 'Adventure awaits!  Please verify your account.',
-                                    text: 'To verify your account, please click the following URL:\n\n'+verifyUrl+'\n\nPlease do not respond to this email.  It was generated from an unmonitored inbox.\n\nFor questions or support, contact support@adventure-buddy.com.'
-                                };
-                                transporter.sendMail(mailOptions, function(error, info)
-                                {
-                                    if (error)
-                                    {
-										console.log('ERROR: can\'t send verification email: '+error);
-                                        res.status(400).send(
-                                        {
-                                            error: 'Cannot send verification email.',
-                                            errorcode: 4
-                                        });
-                                        return;
-                                    }
-                                    else
-                                    {
-										//We're done.  Return the user JSON as success. -------------------------------------------
-                                        console.log('Sent verification email: ' + info.response);
-										console.log('Signup complete.\n');
-										res.json(user);
-                                    }
-                                });
-                            });
-                        });
-                    });
-            });
+					else
+					{
+						//We're done.  Return the user JSON as success. -------------------------------------------
+						console.log('Sent verification email: ' + info.response);
+						console.log('Signup complete.\n');
+						res.json(newUser);
+					}
+				});
+			});
+		});
     });
 	
 	//Verify a new user's email =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	//NOTE:  This is not RESTful. It should be a PUT.  But links are designed to be idempotent (i.e. GET), so no way around it. - ADH
+	//NOTE:  This is not RESTful. It should be a PUT.  But URL links are designed to be idempotent (i.e. GET), 
+	//so no way around it without annying HTML email messages with special link tags and I am too lazy. - ADH
     app.get("/node/verify", function(req, res)
 	{
         //Log the request -----------------------------------------------------
         console.log("Verify request: %s", util.inspect(req.body, false, null));
 		
-        //Upsert the user's email to verified if it exists --------------------
+        //Mark the user's email as verified if it exists ----------------------
         var id = req.param('id')
         console.log('Checking DB for user with verify id %s',id);
+		db.User.findOneAndUpdate({'verifyString':id},{$set:{emailConfirmed:true}}, {new: true}, function(err, doc)
+		{
+			//Handle errors
+			if (err)
+			{
+				console.log('ERROR: Update error: %s',err);
+				res.status(400).send(
+				{
+					error: 'Server error. Please try again later.',
+					errorcode: 5
+				});
+				return;
+			}
+			
+			//Found 'em!
+			console.log('Verified email of user: %s ',doc);
 		
-		//TODO: upsert new user if they exist
-		
+			//Redirect them to the confirmed page
+			res.redirect('/confirmed')
+			
+		});
 	});
 };
