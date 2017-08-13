@@ -43,6 +43,35 @@ var checkLoggedin = function($q, $timeout, $http, $location, $rootScope)
     return deferred.promise;
 };
 
+// Parse a query string =======================================================
+
+function parseQueryString(query)
+{
+    var vars = query.split('&');
+    var queryString = {};
+    for (var i = 0; i < vars.length; i++)
+    {
+        var pair = vars[i].split('=');
+        // If first entry with this name
+        if (typeof queryString[pair[0]] === 'undefined')
+        {
+            queryString[pair[0]] = decodeURIComponent(pair[1]);
+            // If second entry with this name
+        }
+        else if (typeof queryString[pair[0]] === 'string')
+        {
+            var arr = [queryString[pair[0]], decodeURIComponent(pair[1])];
+            queryString[pair[0]] = arr;
+            // If third or later entry with this name
+        }
+        else
+        {
+            queryString[pair[0]].push(decodeURIComponent(pair[1]));
+        }
+    }
+    return queryString;
+}
+
 // Configure the Routes =======================================================
 
 app.config(function($routeProvider, $locationProvider)
@@ -65,55 +94,61 @@ app.config(function($routeProvider, $locationProvider)
             templateUrl: 'views/about.html',
             controller: 'PageCtrl'
         })
-		//Gallery page
+        //Gallery page
         .when('/gallery',
         {
             templateUrl: 'views/gallery.html',
             controller: 'PageCtrl'
         })
-		//Terms of service
+        //Terms of service
         .when('/tos',
         {
             templateUrl: 'views/terms.html',
             controller: 'PageCtrl'
         })
-		//Privacy policy
+        //Privacy policy
         .when('/privacy',
         {
             templateUrl: 'views/privacy.html',
             controller: 'PageCtrl'
         })
-		//Signup page
+        //Signup page
         .when('/signup',
         {
             templateUrl: 'views/signup.html',
             controller: 'SignupCtrl'
         })
-		//Login page
+        //Login page
         .when('/login',
         {
             templateUrl: 'views/login.html',
             controller: 'LoginCtrl'
         })
-		//Confirmation email sent
+        //Confirmation email sent
         .when('/confirm',
         {
             templateUrl: 'views/confirm.html',
             controller: 'PageCtrl'
         })
-		//Email confirmed
+        //Email confirmed
         .when('/confirmed',
         {
             templateUrl: 'views/confirmed.html',
             controller: 'PageCtrl'
         })
-		//Email confirmed
+        //Forgot password
         .when('/forgot',
         {
             templateUrl: 'views/forgot.html',
             controller: 'ForgotCtrl'
         })
-		//User profile page
+        //Reset password
+        .when('/reset',
+        {
+            templateUrl: 'views/reset.html',
+            controller: 'ResetCtrl'
+        })
+        //User profile page
         .when('/profile',
         {
             templateUrl: 'views/profile.html',
@@ -122,7 +157,7 @@ app.config(function($routeProvider, $locationProvider)
                 logincheck: checkLoggedin
             }
         })
-		//Error
+        //Error
         .when('/error',
         {
             templateUrl: 'views/error.html',
@@ -400,8 +435,13 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                         //If we were successful, save user data and redirect to profile page
                         if (response.data !== null)
                         {
-							console.log('Response is %s...\n', JSON.stringify(response));
-							$rootScope.confirmMessage = {email:response.data.email,action:'verify your account',heading:'Signup Successful'};
+                            console.log('Response is %s...\n', JSON.stringify(response));
+                            $rootScope.confirmMessage = {
+                                message: 'We\'ve sent an email to ' + response.data.email + '.  Please click the link in it to verify your account.',
+                                linkhref: '/',
+                                linktext: 'Back to the home page.',
+                                heading: 'Signup Successful'
+                            };
                             $location.url('/confirm');
                         }
                         //If we failed, print an error message saying the user is already registered
@@ -478,21 +518,21 @@ app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
                 function errorCallback(response)
                 {
                     console.log('Response is %s...\n', JSON.stringify(response));
-					switch(response.data.errorcode)
-					{
-						case 1:
-							console.log('Error: Incorrect username or password.\n');
-							$scope.loginErrorMessage = 'Incorrect username or password.';
-							break;
-						case 2:
-							console.log('Error: User has not verified email.\n');
-							$scope.loginErrorMessage = 'You must verify your email first.  Please click the link in the email we sent.';
-							break;
-						case 3:
-							console.log('Error: Something screwed up.\n');
-							$scope.loginErrorMessage = 'Server Error.  Please try again later.';
-							break;
-					}
+                    switch (response.data.errorcode)
+                    {
+                        case 1:
+                            console.log('Error: Incorrect username or password.\n');
+                            $scope.loginErrorMessage = 'Incorrect username or password.';
+                            break;
+                        case 2:
+                            console.log('Error: User has not verified email.\n');
+                            $scope.loginErrorMessage = 'You must verify your email first.  Please click the link in the email we sent.';
+                            break;
+                        case 3:
+                            console.log('Error: Something screwed up.\n');
+                            $scope.loginErrorMessage = 'Server Error.  Please try again later.';
+                            break;
+                    }
                 }
             );
     };
@@ -509,54 +549,167 @@ app.controller('ForgotCtrl', function($rootScope, $scope, $http, $location)
     {
         return viewLocation === $location.path();
     };
-	
-	//Callback for the reset password button
-	$scope.resetPassword = function(email)
-	{
-		//Do some basic validation of the email string
+
+    //Callback for the reset password button
+    $scope.resetPassword = function(email)
+    {
+        //Do some basic validation of the email string
         var looksLikeAnEmail = new RegExp('.+@.+\\..+');
         if (!email || email === '')
         {
-			$scope.forgotErrorMessage = 'You must provide an email.';
-			return;
+            $scope.forgotErrorMessage = 'You must provide an email.';
+            return;
         }
         if (!looksLikeAnEmail.test(email))
         {
-			$scope.forgotErrorMessage = 'Invalid email.';
-			return;
+            $scope.forgotErrorMessage = 'Invalid email.';
+            return;
         }
-		
-		//Submit this email to the password reset link
+
+        //Submit this email to the password reset link
         console.log('Resetting password for email %s...\n', email);
-        $http.put('node/forgot', {email:email})
+        $http.put('node/forgot',
+            {
+                email: email
+            })
             //Process the response
             .then(
                 //If we were successful, redirect the user to the confirm page
                 function successCallback()
                 {
-					$rootScope.confirmMessage = {email:email,action:'reset your password',heading:'Email Sent'};
-					$location.url('/confirm');
+                    $rootScope.confirmMessage = {
+                        message: 'We\'ve sent an email to ' + email + '.  Please click the link in it to reset your password.  Please note that this link will expire after one hour.',
+                        linkhref: '/',
+                        linktext: 'Back to the home page.',
+                        heading: 'Email Sent'
+                    };
+                    $location.url('/confirm');
                 },
                 //If we failed, provide feedback
                 function errorCallback(response)
                 {
                     console.log('Response is %s...\n', JSON.stringify(response));
-					switch(response.data.errorcode)
-					{
-						case 1:
-							console.log('Error: That email is not registered.\n');
-							$scope.forgotErrorMessage = 'That email is not registered.';
-							break;
-						default:
-							console.log('Error: Something screwed up.\n');
-							$rootScope.errorMessage = JSON.stringify(response);
-							$location.url('/error');
-							break;
-					}
+                    switch (response.data.errorcode)
+                    {
+                        case 1:
+                            console.log('Error: That email is not registered.\n');
+                            $scope.forgotErrorMessage = 'That email is not registered.';
+                            break;
+                        default:
+                            console.log('Error: Something screwed up.\n');
+                            $rootScope.errorMessage = JSON.stringify(response);
+                            $location.url('/error');
+                            break;
+                    }
                 }
             );
-	};
-	
+    };
+
+});
+
+// Controls the Password reset pages ==========================================
+
+app.controller('ResetCtrl', function($rootScope, $scope, $http, $location)
+{
+    //Get the query string
+    var query = window.location.search.substring(1);
+    var qs = parseQueryString(query);
+    console.log('Got query id %s', qs.id);
+
+    //Initialize the form values
+    $scope.user = {
+        resetString: qs.id,
+        password: '',
+        password2: ''
+    };
+    $scope.pswdStrengthMessage = 'Invalid';
+
+    //Highlights the links as we move around.
+    $scope.isActive = function(viewLocation)
+    {
+        return viewLocation === $location.path();
+    };
+
+    //Check if the password is valid
+    $scope.checkPswdValid = function(user)
+    {
+        $scope.pswdValidErrorMessage = '';
+        switch (zxcvbn(user.password).score)
+        {
+            case 0:
+            case 1:
+                $scope.pswdStrengthMessage = 'Weak';
+                break;
+            case 2:
+                $scope.pswdStrengthMessage = 'Moderate';
+                break;
+            case 3:
+                $scope.pswdStrengthMessage = 'Strong';
+                break;
+            default:
+                $scope.pswdStrengthMessage = 'Very Strong';
+        }
+        $scope.pswdMatchErrorMessage = '';
+        if (user.password.length < 8)
+        {
+            $scope.pswdMatchErrorMessage += 'Password must be at least 8 characters.';
+            $scope.pswdStrengthMessage = 'Invalid';
+        }
+    };
+
+    //Check if the passwords match
+    $scope.checkPswdMatch = function(newuser)
+    {
+        $scope.pswdMatchErrorMessage = '';
+        if (newuser.password !== newuser.password2)
+        {
+            $scope.pswdMatchErrorMessage += 'Passwords do not match.';
+        }
+    };
+
+    //Callback for the reset password button
+    $scope.submitNewPassword = function(user)
+    {
+        //Validate the password.
+        $scope.checkPswdValid(user);
+        $scope.checkPswdMatch(user);
+
+        //Submit this email to the password reset link
+        console.log('Resetting password: %s\n', user);
+        $http.put('node/reset', user)
+            //Process the response
+            .then(
+                //If we were successful, redirect the user to the confirm page
+                function successCallback()
+                {
+                    $rootScope.confirmMessage = {
+                        message: 'Your password was successfully reset.',
+                        linkhref: '/login',
+                        linktext: 'Click here to log in.',
+                        heading: 'Email Sent'
+                    };
+                    $location.url('/confirm');
+                },
+                //If we failed, provide feedback
+                function errorCallback(response)
+                {
+                    console.log('Response is %s...\n', JSON.stringify(response));
+                    switch (response.data.errorcode)
+                    {
+                        case 1:
+                            console.log('Error: Link has expired.\n');
+                            $scope.pswdMatchErrorMessage = 'Password reset link has expired.';
+                            break;
+                        default:
+                            console.log('Error: Something screwed up.\n');
+                            $rootScope.errorMessage = JSON.stringify(response);
+                            $location.url('/error');
+                            break;
+                    }
+                }
+            );
+    };
+
 });
 
 // Carousel handler ===========================================================

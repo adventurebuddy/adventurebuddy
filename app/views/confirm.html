@@ -3,10 +3,15 @@
 </div>
 <div class="container">
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12" ng-show="confirmMessage">
             <h1>{{confirmMessage.heading}}</h1>
             <hr/>
-            <p>We've sent an email to {{confirmMessage.email}}.  Please click the link in it to {{confirmMessage.action}}. <a href = "/">Back to home page</a></p>
+            <p>{{confirmMessage.message}} <a href="{{confirmMessage.linkhref}}">{{confirmMessage.linktext}}</a></p>
+        </div>
+        <div class="col-lg-12" ng-show="!confirmMessage">
+            <h1>Email Verification Successful</h1>
+            <hr/>
+            <p>Thanks for verifying your email! <a href="/login">Click here to log in.</a></p>
         </div>
     </div>
 </div>

@@ -1,0 +1,26 @@
+<div class="spacer">
+    &nbsp;
+</div>
+<div class="container marketing">
+    <div class="row">
+        <div class="form-container">
+            <h1>Reset Password</h1>
+            <hr/>
+            <form name="signupForm">
+                <div class="form-group">
+                    <label>New Password</label>
+                    <span class="pswdMeter" ng-class="{'color-red': pswdStrengthMessage === 'Weak', 'color-orange': pswdStrengthMessage === 'Moderate', 'color-green': (pswdStrengthMessage === 'Strong'||pswdStrengthMessage === 'Very Strong')}">Strength: {{pswdStrengthMessage}}</span>
+                    <br/>
+                    <input class="form-field" ng-model="user.password" type="password" ng-change="checkPswdValid(user)" placeholder="Enter a new password" />
+                    <br/>
+                    <input class="form-field" ng-model="user.password2" type="password" ng-change="checkPswdMatch(user)" placeholder="Repeat password" />
+                    <br/>
+                    <span class="loginerror">{{pswdMatchErrorMessage}}</span>
+                </div>
+                <div class="signupbtn">
+                    <button class="btn btn-lg btn-primary" ng-click="submitNewPassword(user)" role="button">Reset password</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
