@@ -37,7 +37,7 @@ var checkLoggedin = function($q, $timeout, $http, $location, $rootScope)
             },
             function errorCallback()
             {
-                console.log('Something fucked up!\n');
+                console.log('Something broke!\n');
             }
         );
     return deferred.promise;
@@ -53,53 +53,67 @@ app.config(function($routeProvider, $locationProvider)
 
     //Set up the routes
     $routeProvider
-        // Home
+        // Home page
         .when('/',
         {
             templateUrl: 'views/home.html',
             controller: 'PageCtrl'
         })
-        // Pages
+        // About page
         .when('/about',
         {
             templateUrl: 'views/about.html',
             controller: 'PageCtrl'
         })
+		//Gallery page
         .when('/gallery',
         {
             templateUrl: 'views/gallery.html',
             controller: 'PageCtrl'
         })
+		//Terms of service
         .when('/tos',
         {
             templateUrl: 'views/terms.html',
             controller: 'PageCtrl'
         })
+		//Privacy policy
         .when('/privacy',
         {
             templateUrl: 'views/privacy.html',
             controller: 'PageCtrl'
         })
+		//Signup page
         .when('/signup',
         {
             templateUrl: 'views/signup.html',
             controller: 'SignupCtrl'
         })
+		//Login page
         .when('/login',
         {
             templateUrl: 'views/login.html',
             controller: 'LoginCtrl'
         })
+		//Confirmation email sent
         .when('/confirm',
         {
             templateUrl: 'views/confirm.html',
             controller: 'PageCtrl'
         })
+		//Email confirmed
         .when('/confirmed',
         {
             templateUrl: 'views/confirmed.html',
             controller: 'PageCtrl'
         })
+		//Email confirmed
+        .when('/forgot',
+        {
+            templateUrl: 'views/forgot.html',
+            controller: 'ForgotCtrl'
+        })
+		//User profile page
         .when('/profile',
         {
             templateUrl: 'views/profile.html',
@@ -107,6 +121,12 @@ app.config(function($routeProvider, $locationProvider)
             {
                 logincheck: checkLoggedin
             }
+        })
+		//Error
+        .when('/error',
+        {
+            templateUrl: 'views/error.html',
+            controller: 'PageCtrl'
         })
         // else 404
         .otherwise('/404',
@@ -381,7 +401,7 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                         if (response.data !== null)
                         {
 							console.log('Response is %s...\n', JSON.stringify(response));
-                            $rootScope.currentUser = response.data;
+							$rootScope.confirmMessage = {email:response.data.email,action:'verify your account',heading:'Signup Successful'};
                             $location.url('/confirm');
                         }
                         //If we failed, print an error message saying the user is already registered
@@ -477,6 +497,66 @@ app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
             );
     };
 
+});
+
+// Controls the Password reset pages ==========================================
+
+app.controller('ForgotCtrl', function($rootScope, $scope, $http, $location)
+{
+
+    //Highlights the links as we move around.
+    $scope.isActive = function(viewLocation)
+    {
+        return viewLocation === $location.path();
+    };
+	
+	//Callback for the reset password button
+	$scope.resetPassword = function(email)
+	{
+		//Do some basic validation of the email string
+        var looksLikeAnEmail = new RegExp('.+@.+\\..+');
+        if (!email || email === '')
+        {
+			$scope.forgotErrorMessage = 'You must provide an email.';
+			return;
+        }
+        if (!looksLikeAnEmail.test(email))
+        {
+			$scope.forgotErrorMessage = 'Invalid email.';
+			return;
+        }
+		
+		//Submit this email to the password reset link
+        console.log('Resetting password for email %s...\n', email);
+        $http.put('node/forgot', {email:email})
+            //Process the response
+            .then(
+                //If we were successful, redirect the user to the confirm page
+                function successCallback()
+                {
+					$rootScope.confirmMessage = {email:email,action:'reset your password',heading:'Email Sent'};
+					$location.url('/confirm');
+                },
+                //If we failed, provide feedback
+                function errorCallback(response)
+                {
+                    console.log('Response is %s...\n', JSON.stringify(response));
+					switch(response.data.errorcode)
+					{
+						case 1:
+							console.log('Error: That email is not registered.\n');
+							$scope.forgotErrorMessage = 'That email is not registered.';
+							break;
+						default:
+							console.log('Error: Something screwed up.\n');
+							$rootScope.errorMessage = JSON.stringify(response);
+							$location.url('/error');
+							break;
+					}
+                }
+            );
+	};
+	
 });
 
 // Carousel handler ===========================================================

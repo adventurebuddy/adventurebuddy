@@ -74,6 +74,12 @@ hr {
 {
 	text-align:left;
 }
+.error-container
+{
+	width:600px;
+	text-align:center;
+	margin:auto;
+}
 
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */

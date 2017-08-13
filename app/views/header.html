@@ -25,7 +25,7 @@
                             <li ng-class="{ active: isActive('/signup')}"><a href="/signup">Sign Up</a></li>
                         </ul>
                     </span>
-                    <span ng-show="currentUser">
+                    <span ng-show="currentUser && currentUser.emailConfirmed">
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown pull-xs-right">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">

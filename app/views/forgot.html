@@ -1,0 +1,21 @@
+<div class="spacer">
+    &nbsp;
+</div>
+<div class="container marketing" ng-init="init()">
+    <div class="row">
+        <div class="form-container">
+            <h1>Forgot Password</h1>
+            <hr/>
+            <form>
+                <div class="form-group">
+                    <label>Enter your Email:</label>
+                    <br/>
+                    <input class="form-field" ng-model="email" placeholder="Email" />
+                </div>
+                <span class="loginerror">{{forgotErrorMessage}}</span>
+                <br/>
+                <button class="btn btn-lg btn-primary" ng-click="resetPassword(email)" role="button">Reset password</a>
+            </form>
+        </div>
+    </div>
+</div>
