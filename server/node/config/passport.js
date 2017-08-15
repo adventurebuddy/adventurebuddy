@@ -5,7 +5,7 @@
 var LocalStrategy = require('passport-local').Strategy;  //Local auth
 var FacebookStrategy = require('passport-facebook').Strategy; //Facebook auth
 var User = require('../models/user'); //User model
-var configAuth = require('./accounts'); //Facebook and google account configuration
+var accounts = require('./accounts'); //Facebook and google account configuration
 const util = require('util');//util.inspect
 
 // Expose these functions to our app using module.exports =====================
@@ -62,8 +62,8 @@ module.exports = function(passport)
 
     // pull in our app id and secret from our auth.js file
 	{
-        clientID        : configAuth.facebookAuth.clientID,
-        clientSecret    : configAuth.facebookAuth.clientSecret,
+        clientID        : accounts.facebook.clientID,
+        clientSecret    : accounts.facebook.clientSecret,
         callbackURL     : '/node/user/facebook/callback',
 		passReqToCallback : true,
         profileFields: ['id', 'emails', 'first_name', 'middle_name', 'last_name','gender','picture','birthday','locale']
