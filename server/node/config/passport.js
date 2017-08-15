@@ -1,12 +1,22 @@
-
-//FUUUUUUCK PASSPORT.  FUCK THESE OPINIONATED PIECES OF SHIT RIGHT IN THEIR STUPID FAGGOT FUCKING ASSHOLES.
-
 // Load all of the modules we need ============================================
-var LocalStrategy = require('passport-local').Strategy;  //Local auth
-var FacebookStrategy = require('passport-facebook').Strategy; //Facebook auth
+
+//For Email authentication
+var LocalStrategy = require('passport-local').Strategy;
+
+//For facebook authentication
+var FacebookStrategy = require('passport-facebook').Strategy;
+
+//For Google authentication
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+
+//For user model
 var User = require('../models/user'); //User model
-var accounts = require('./accounts'); //Facebook and google account configuration
-const util = require('util');//util.inspect
+
+//For facebook and google account configuration
+var accounts = require('./accounts');
+
+//For inspect
+const util = require('util');
 
 // Expose these functions to our app using module.exports =====================
 module.exports = function(passport)
@@ -64,7 +74,7 @@ module.exports = function(passport)
 	{
         clientID        : accounts.facebook.clientID,
         clientSecret    : accounts.facebook.clientSecret,
-        callbackURL     : '/node/user/facebook/callback',
+        callbackURL     : '/node/login/facebook/callback',
 		passReqToCallback : true,
         profileFields: ['id', 'emails', 'first_name', 'middle_name', 'last_name','gender','picture','birthday','locale']
     },
@@ -78,10 +88,9 @@ module.exports = function(passport)
 		{
 			console.log('Received FaceBook login request for profile: %s',util.inspect(profile, false, null) );
 			console.log('Token is: %s',token );
-			console.log('Request is: %s',util.inspect(req, false, null) );
 		
             // find the user in the database based on their facebook id
-            User.findOne({ 'facebook.id' : profile.id }, function(err, user) 
+            User.findOne({ 'authFacebook.id' : profile.id }, function(err, user) 
 			{
 
                 // if there is an error, stop everything and return that
@@ -99,10 +108,6 @@ module.exports = function(passport)
                     return done(null, user); // user found, return that user
                 }
 				
-				//If the user does not exist and they got here from the login page, redirect 
-				//them to the signup page so that they have to check the ToS agree box.
-				//TODO
-				
 				//Otherwise, create the user.
 				else 
 				{
@@ -112,8 +117,8 @@ module.exports = function(passport)
                     var newUser            = new User();
 
                     // set all of the facebook information in our user model
-                    newUser.facebook.id    = profile.id; // set the users facebook id                   
-                    newUser.facebook.token = token; // we will save the token that facebook provides to the user                    
+                    newUser.authFacebook.id    = profile.id; // set the users facebook id                   
+                    newUser.authFacebook.token = token; // we will save the token that facebook provides to the user                    
 
 					//Parse the facebook fields into our required fields.
 					newUser.email = profile.emails[0].value;
@@ -121,8 +126,7 @@ module.exports = function(passport)
 					newUser.birthdate = new Date(dob[2],dob[0],dob[1]);
 					newUser.created = new Date();
 					
-					//Check that the user is old enough.  If not, return some kind of error.
-					//TODO
+					//TODO: double-check user birthdate
 					
 					//Save all of the additional profile information we can get our hands on
 					//TODO
@@ -145,4 +149,55 @@ module.exports = function(passport)
         });
 	
 	}));
+	
+	// Methods for Google authentication method -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	passport.use(new GoogleStrategy(
+	{
+        clientID        : accounts.google.clientID,
+        clientSecret    : accounts.google.clientSecret,
+        callbackURL     : '/node/login/google/callback',
+    },
+    function(token, refreshToken, profile, done) {
+
+        // make the code asynchronous
+        // User.findOne won't fire until we have all our data back from Google
+        process.nextTick(function() {
+			console.log('Received Google login request for profile: %s',util.inspect(profile, false, null) );
+			console.log('Token is: %s',token );
+
+            // try to find the user based on their google id
+            User.findOne({ 'authGoogle.id' : profile.id }, function(err, user) {
+                if (err)
+                    return done(err);
+
+                if (user) {
+
+                    // if a user is found, log them in
+                    return done(null, user);
+                } else {
+                    // if the user isnt in our database, create a new user
+                    var newUser          = new User();
+
+                    // set all of the relevant information
+                    newUser.authGoogle.id    = profile.id;
+                    newUser.authGoogle.token = token;
+                    newUser.email = profile.emails[0].value;
+					dob = '02/05/1986'.split('/');//TODO
+					newUser.birthdate = new Date(dob[2],dob[0],dob[1]);
+					newUser.created = new Date();
+					
+					//TODO: double-check user birthdate
+
+                    // save the user
+                    newUser.save(function(err) {
+                        if (err)
+                            throw err;
+                        return done(null, newUser);
+                    });
+                }
+            });
+        });
+
+    }));
+
 }

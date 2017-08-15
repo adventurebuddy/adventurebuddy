@@ -19,7 +19,14 @@ var accounts = require('../config/accounts');
 var dateUtil = require('../util/dateUtil');
 
 //For sending emails
-var emailUtil = require('../util/emailUtil);
+var emailUtil = require('../util/emailUtil');
+
+//For sending emails
+var urlUtil = require('../util/urlUtil');
+
+//For being frustrated with opinionated authentication middleware
+var passport = require('passport');
+
 
 //Sign up a new user ======================================================
 module.exports.signupRequest = function(req, res, next)
@@ -65,10 +72,10 @@ module.exports.signupRequest = function(req, res, next)
 
 	//Create a new user object.
 	var newUser = new db.User();
-	newUser.password = newUser.generateHash(req.body.password);
+	newUser.authEmail.password = newUser.generateHash(req.body.password);
 	newUser.email = req.body.email.toLowerCase();
-	newUser.emailConfirmed = false;
-	newUser.verifyString = verificationString;
+	newUser.authEmail.emailConfirmed = false;
+	newUser.authEmail.verifyString = verificationString;
 
 	//Check the user's birthdate ------------------------------------------
 
@@ -174,7 +181,7 @@ module.exports.signupRequest = function(req, res, next)
 			console.log('User passed reCAPTCHA validation.  VERY GOOD HE IS A HUMAN JUST LIKE US.  WE SHOULD CHAT ABOUT OUR EMOTIONS AND INTERNAL SKELETONS');
 
 			//Send them a confirmation email with a unique link in it ------------------------------------------
-			var verifyUrl = 'http://127.0.0.1/node/verify?id=' + verificationString;
+			var verifyUrl = 'http://' + urlUtil.getServerHostname() + '/node/verify?id=' + verificationString;
 			var mailOptions = {
 				from: 'Adventure Buddy <accounts@adventure-buddy.com>',
 				to: newUser.email,
@@ -220,12 +227,12 @@ module.exports.verifyEmailRequest = function(req, res)
 	console.log('Checking DB for user with verify id %s', id);
 	db.User.findOneAndUpdate(
 	{
-		'verifyString': id
+		'authEmail.verifyString': id
 	},
 	{
 		$set:
 		{
-			emailConfirmed: true
+			'authEmail.emailConfirmed': true
 		}
 	},
 	{
@@ -274,7 +281,7 @@ module.exports.logInRequest = function(req, res, next)
 		}
 
 		//If this user's email has not yet been validated, send a different error message
-		if (!user.emailConfirmed)
+		if (!user.authEmail.emailConfirmed)
 		{
 			console.log('Login error, your email is unverified.\n');
 			res.status(400).send(
@@ -284,6 +291,16 @@ module.exports.logInRequest = function(req, res, next)
 			});
 			return;
 		}
+		
+		//If they asked us to remember them, make the cookie last 30 days
+		if (req.body.remember) 
+		{
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+        } 
+		else 
+		{
+          req.session.cookie.expires = false; // Cookie expires at end of session
+        }
 
 		//Return success.
 		req.logIn(user, function(err)
@@ -298,16 +315,105 @@ module.exports.logInRequest = function(req, res, next)
 				});
 				return;
 			}
-			console.log('Successfully logged in user %s.\n', user.username);
+			console.log('Successfully logged in user %s.\n', user.email);
 			return res.status(200).send(user);
 		});
 
 	})(req, res, next);
 }
 
+//Authentication callback for passport.js ==========================================
+//TODO: move it in here
+
 //Send a password reset email ======================================================
 module.exports.forgotPasswordRequest = function(req, res)
 {
+	//Log the request -----------------------------------------------------
+	console.log("Forgot password request: %s", util.inspect(req.body, false, null));
+
+	//Find a user with this email if they exist -------------------------------------
+	console.log('Checking DB for user with email %s', req.body.email);
+	db.User.findOne(
+	{
+		'email': req.body.email
+	}, function(err, user)
+	{
+		//Handle errors
+		if (err)
+		{
+			console.log('ERROR: Update error: %s', err);
+			res.status(500).send(
+			{
+				error: 'Error querying for user with email ' + req.body.email + ': ' + err,
+				errorcode: 2
+			});
+			return;
+		}
+		if (user === null)
+		{
+			console.log('ERROR: No user with email %s', req.body.email);
+			res.status(400).send(
+			{
+				error: 'That email is not registered.',
+				errorcode: 1
+			});
+			return;
+		}
+
+		//Found 'em!  Generate and store a key and timestamp --------------------------
+		console.log('Found user: %s', user);
+		var today = new Date(Date.now());
+		var key = hash(
+		{
+			pswd: user.password,
+			date: today
+		});
+		user.authEmail.reset = today;
+		user.authEmail.resetString = key;
+		user.save(function(err, updatedUser)
+		{
+			//Handle errors
+			if (err)
+			{
+				console.log('ERROR: Update error: %s', err);
+				res.status(500).send(
+				{
+					error: 'Error updating resetString: ' + err,
+					errorcode: 3
+				});
+				return;
+			}
+
+			//Send the user an email --------------------------------------
+			var verifyUrl = 'http://' + urlUtil.getServerHostname() + '/reset?id=' + key;
+			var mailOptions = {
+				from: 'Adventure Buddy <accounts@adventure-buddy.com>',
+				to: req.body.email,
+				subject: 'Password reset',
+				text: 'To reset your password, please click the following URL.  If you did not request a password reset, please ignore this message.\n\n' + verifyUrl + '\n\nPlease do not respond to this email.  It was generated from an unmonitored inbox.\n\nFor questions or support, contact support@adventure-buddy.com.'
+			};
+			emailUtil.sendMail(mailOptions, function(error, info)
+			{
+				if (error)
+				{
+					console.log('ERROR: can\'t send reset email: ' + error);
+					res.status(500).send(
+					{
+						error: 'Cannot send reset email: ' + error,
+						errorcode: 4
+					});
+					return;
+				}
+				else
+				{
+					//We're done.  Return the user JSON as success. -------------------------------------------
+					console.log('Sent reset email: ' + info.response);
+					console.log('Reset request complete.\n');
+					res.status(200).send();
+				}
+			});
+		});
+	});
 }
 
 //Reset a user's password ======================================================
@@ -320,7 +426,7 @@ module.exports.passwordResetRequest = function(req, res)
 	console.log('Checking DB for user with resetString %s', req.body.resetString);
 	db.User.findOne(
 	{
-		'resetString': req.body.resetString
+		'authEmail.resetString': req.body.resetString
 	}, function(err, user)
 	{
 		//Handle errors
@@ -351,9 +457,9 @@ module.exports.passwordResetRequest = function(req, res)
 
 		//Found 'em!  Change their password to the new one ----------------------------
 		console.log('Found user: %s', user);
-		user.reset = undefined;
-		user.resetString = undefined;
-		user.password = user.generateHash(req.body.password);
+		user.authEmail.reset = undefined;
+		user.authEmail.resetString = undefined;
+		user.authEmail.password = user.generateHash(req.body.password);
 		user.save(function(err, updatedUser)
 		{
 			//Handle errors

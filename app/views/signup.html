@@ -40,7 +40,7 @@
                 </div>
                 <div class="form-group">
                     <label>Terms and Conditions</label>
-                    <br/> I have read and agree to the <a href="/tos" target="_blank">Terms of Service</a>.
+                    <br/> I agree to the <a href="/tos" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>.
                     <input type="checkbox" ng-model="newuser.agree" ng-change="checkTosValid(newuser)" />
                     <br/>
                     <span class="loginerror">{{tosErrorMessage}}</span>
@@ -51,11 +51,11 @@
                     <span class="loginerror">{{reCaptchaErrorMessage}}</span>
                 </div>
             </form>
-			<span ng-show="isSignupMethod('')||isSignupMethod('facebook')">
-				<p><a ng-click="buttonCallback('facebook')" class="btn btn-primary" style="width:100%;"><i class="fa fa-facebook"></i> Sign up with Facebook</a></p>
+			<span ng-show="isSignupMethod('')">
+				<p><a class="btn btn-primary" style="width:100%;" href="/node/login/facebook" target="_self"><i class="fa fa-facebook"></i> Log in with Facebook</a></p>
 			</span>
-			<span ng-show="isSignupMethod('')||isSignupMethod('google')">
-				<p><a ng-click="buttonCallback('google')" class="btn btn-primary" style="background-color:#e64b4b;border-color:#e64b4b;width:100%;"><i class="fa fa-google-plus" aria-hidden="true"></i> Sign up with Google</a></p>
+			<span ng-show="isSignupMethod('')">
+				<p><a class="btn btn-primary" style="background-color:#e64b4b;border-color:#e64b4b;width:100%;" href="/node/login/google" target="_self"><i class="fa fa-google-plus" aria-hidden="true"></i> Log in with Google</a></p>
 			</span>
 			<span ng-show="isSignupMethod('')||isSignupMethod('email')">
 				<p><a ng-click="buttonCallback('email')" class="btn btn-primary" style="background-color:gray;border-color:gray;width:100%;"><i class="fa fa-envelope" aria-hidden="true"></i> Sign up with Email address</a></p>

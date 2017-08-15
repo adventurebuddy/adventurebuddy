@@ -17,7 +17,8 @@
                     <br/>
                     <input class="form-field" ng-model="user.password" type="password" placeholder="Enter password" />
                 </div>
-                <span class="loginerror">{{loginErrorMessage}}</span>
+                Remember me <input type="checkbox" ng-model="user.remember"/>  
+                <span class="loginerror">{{loginErrorMessage}}</span><br/>
                 <br/>
             </form>
 			<span ng-show="isLoginMethod('')">

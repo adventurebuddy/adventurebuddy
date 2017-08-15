@@ -106,6 +106,12 @@ app.config(function($routeProvider, $locationProvider)
             templateUrl: 'views/terms.html',
             controller: 'PageCtrl'
         })
+        //Terms of service
+        .when('/privacy',
+        {
+            templateUrl: 'views/privacy.html',
+            controller: 'PageCtrl'
+        })
         //Signup page
         .when('/signup',
         {
@@ -239,14 +245,7 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
 		}
 		else
 		{
-			if($scope.newuser.signupmethod==='email')
-			{
-				$scope.signupEmail($scope.newuser);
-			}
-			else if($scope.newuser.signupmethod==='facebook')
-			{
-				$scope.signupFacebook($scope.newuser);
-			}
+			$scope.signupEmail($scope.newuser);
 		}
     };
 	
@@ -474,23 +473,6 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                     }
                 );
         }
-    };
-	
-	//Handle the facebook signup button
-    $scope.signupFacebook = function(newuser)
-    {
-        //Validate the form input
-        console.log('Validating form input %s...\n', JSON.stringify(newuser));
-        $scope.checkTosValid(newuser);
-
-        //If it is valid, redirect us to the facebook login route
-		//I wanted to pass a bunch of extra shit, but passport-facebook is explicitly designed not
-		//to do this because they think they know better than me how I should run my own fucking website.
-		//GOD I FUCKING HATE THOSE ASSHOLES AT PASSPORT - ADH
-        if ($scope.tosErrorMessage === '')
-        {
-			window.location = 'node/login/facebook';
-		}
     };
 });
 

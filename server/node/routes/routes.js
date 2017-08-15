@@ -14,6 +14,9 @@
 //Handlers for email authentication strategy
 var authEmail = require('./authEmail');
 
+//For inspect
+const util = require('util');
+
 // Routes for the Adventure Buddy app =========================================
 
 module.exports = function(app, passport)
@@ -62,14 +65,6 @@ module.exports = function(app, passport)
     app.post("/node/login", authEmail.logInRequest);
 	
 	//Facebook authentication routes ------------------------------------------
-
-    //Sign up a new user using facebook
-    app.get('/node/user/facebook',
-        passport.authenticate('facebook', 
-		{ 
-			//Things we want to know from facebook
-			scope : ['email','user_birthday','public_profile']
-		}));
 		
 	//Log in a new user using facebook
     app.get('/node/login/facebook',
@@ -80,10 +75,29 @@ module.exports = function(app, passport)
 		}));
 		
     //Handle the facebook authentication callback
-    app.get('/node/user/facebook/callback',
+    app.get('/node/login/facebook/callback',
         passport.authenticate('facebook', {
             successRedirect : '/profile',
             failureRedirect : '/'
         }));
+		
+	//Google authentication routes ------------------------------------------
+		
+	//Log in a new user using google
+	app.get('/node/login/google', 
+		passport.authenticate('google', 
+		{ 
+			scope : [
+				'https://www.googleapis.com/auth/user.emails.read',
+				'https://www.googleapis.com/auth/userinfo.profile',
+				'https://www.googleapis.com/auth/userinfo.email'] 
+		}));
+
+    //Handle the Google authentication callback
+    app.get('/node/login/google/callback',
+            passport.authenticate('google', {
+                    successRedirect : '/profile',
+                    failureRedirect : '/'
+            }));
 		
 };
