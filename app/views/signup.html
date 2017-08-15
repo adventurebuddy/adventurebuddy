@@ -6,15 +6,8 @@
         <div class="form-container">
             <h1>Sign Up</h1>
             <hr/>
-            <form name="signupForm">
-                <div class="form-group">
-                    <label>Username</label>
-                    <br/>
-                    <input class="form-field" ng-model="newuser.username" ng-change="checkUsernameValid(newuser)" placeholder="Enter username" />
-                    <br/>
-                    <span class="loginerror">{{usernameValidErrorMessage}}</span>
-                </div>
-                <div class="form-group">
+            <form name="signupForm" ng-show="!isSignupMethod('')" class = "animate-hide">
+                <div class="form-group" ng-show="isSignupMethod('email')">
                     <label>Email Address</label>
                     <br/>
                     <input class="form-field" ng-model="newuser.email" ng-change="checkEmailValid(newuser)" placeholder="Enter email address" type="email" />
@@ -23,7 +16,7 @@
                     <br/>
                     <span class="loginerror">{{emailValidErrorMessage}} {{emailMatchErrorMessage}}</span>
                 </div>
-                <div class="form-group">
+                <div class="form-group" ng-show="isSignupMethod('email')">
                     <label>Password</label>
                     <span class="pswdMeter" ng-class="{'color-red': pswdStrengthMessage === 'Weak', 'color-orange': pswdStrengthMessage === 'Moderate', 'color-green': (pswdStrengthMessage === 'Strong'||pswdStrengthMessage === 'Very Strong')}">Strength: {{pswdStrengthMessage}}</span>
                     <br/>
@@ -57,10 +50,16 @@
                     <div vc-recaptcha key="'6LerFCwUAAAAABNm1j9btGQ6Wem_4-m5MHuMz66D'" on-create="setRecaptchaWidgetId(widgetId)"></div>
                     <span class="loginerror">{{reCaptchaErrorMessage}}</span>
                 </div>
-                <div class="signupbtn">
-                    <button class="btn btn-lg btn-primary" ng-click="signup(newuser)" role="button">Sign Up</a>
-                </div>
             </form>
+			<span ng-show="isSignupMethod('')||isSignupMethod('facebook')">
+				<p><a ng-click="setSignupMethod('facebook')" class="btn btn-primary" style="width:100%;"><i class="fa fa-facebook"></i> Sign up with Facebook</a></p>
+			</span>
+			<span ng-show="isSignupMethod('')||isSignupMethod('google')">
+				<p><a ng-click="setSignupMethod('google')" class="btn btn-primary" style="background-color:#e64b4b;border-color:#e64b4b;width:100%;"><i class="fa fa-google-plus" aria-hidden="true"></i> Sign up with Google</a></p>
+			</span>
+			<span ng-show="isSignupMethod('')||isSignupMethod('email')">
+				<p><a ng-click="setSignupMethod('email')" class="btn btn-primary" style="background-color:gray;border-color:gray;width:100%;"><i class="fa fa-envelope" aria-hidden="true"></i> Sign up with Email address</a></p>
+			</span>
         </div>
     </div>
 </div>

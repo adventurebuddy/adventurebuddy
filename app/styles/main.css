@@ -81,6 +81,14 @@ hr {
 	margin:auto;
 }
 
+.animate-hide{
+  transition: all linear 0.5s;
+}
+
+.animate-hide.ng-hide {
+  opacity: 0;
+}
+
 /* CUSTOMIZE THE NAVBAR
 -------------------------------------------------- */
 

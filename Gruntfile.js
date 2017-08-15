@@ -97,7 +97,7 @@ module.exports = function(grunt)
             {
                 options:
                 {
-                    open: 'http://127.0.0.1',
+                    open: 'http://local.adventure-buddy.com',
                     middleware: function(connect)
                     {
                         return [
@@ -138,7 +138,7 @@ module.exports = function(grunt)
             {
                 options:
                 {
-                    open: 'http://127.0.0.1',
+                    open: 'http://local.adventure-buddy.com',
                     base: '<%= yeoman.dist %>'
                 }
             }

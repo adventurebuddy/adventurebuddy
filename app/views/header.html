@@ -16,8 +16,6 @@
                         <li ng-class="{ active: isActive('/')}"><a href="/">Home</a></li>
                         <li ng-class="{ active: isActive('/gallery')}"><a href="/gallery">Gallery</a></li>
                         <li ng-class="{ active: isActive('/about')}"><a href="/about">About</a></li>
-                        <li ng-class="{ active: isActive('/tos')}"><a href="/tos">Terms</a></li>
-                        <li ng-class="{ active: isActive('/privacy')}"><a href="/privacy">Privacy</a></li>
                     </ul>
                     <span ng-show="!currentUser">
                         <ul class="nav navbar-nav navbar-right">
@@ -29,7 +27,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown pull-xs-right">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <img src="images/alex_tiny.jpg" class="login-pic" /> {{ currentUser.username }}
+                                    <img src="images/alex_tiny.jpg" class="login-pic" /> {{ currentUser.email }}
                                     <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">

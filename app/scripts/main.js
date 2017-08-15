@@ -4,7 +4,7 @@
 
 // Main AngularJS Web Application =============================================
 
-var app = angular.module('adventureBuddyApp', ['ngRoute', 'vcRecaptcha']);
+var app = angular.module('adventureBuddyApp', ['ngRoute', 'vcRecaptcha', 'ngAnimate']);
 
 // Function to check if the user is logged in =================================
 
@@ -106,12 +106,6 @@ app.config(function($routeProvider, $locationProvider)
             templateUrl: 'views/terms.html',
             controller: 'PageCtrl'
         })
-        //Privacy policy
-        .when('/privacy',
-        {
-            templateUrl: 'views/privacy.html',
-            controller: 'PageCtrl'
-        })
         //Signup page
         .when('/signup',
         {
@@ -161,12 +155,6 @@ app.config(function($routeProvider, $locationProvider)
         .when('/error',
         {
             templateUrl: 'views/error.html',
-            controller: 'PageCtrl'
-        })
-        // else 404
-        .otherwise('/404',
-        {
-            templateUrl: '404.html',
             controller: 'PageCtrl'
         });
 
@@ -221,6 +209,7 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
         $scope.years.push((currentYear - i).toString());
     }
     $scope.newuser = {
+		signupmethod: '',
         username: '',
         email: '',
         email2: '',
@@ -239,32 +228,31 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
     {
         return viewLocation === $location.path();
     };
+	
+	//called when the user selects a signup method
+	$scope.setSignupMethod = function(method)
+    {
+		if($scope.newuser.signupmethod !== method)
+		{
+			console.log('Setting signup method to %s',method);
+			$scope.newuser.signupmethod = method;
+		}
+		else
+		{
+			$scope.signup($scope.newuser);
+		}
+    };
+	
+	//called to check current signup method
+	$scope.isSignupMethod = function(method)
+    {
+        return $scope.newuser.signupmethod === method;
+    };
 
     //Saves the recaptcha widget id.  Required for SPAs.
     $scope.setRecaptchaWidgetId = function(widgetid)
     {
         $scope.recaptchaWidgetId = widgetid;
-    };
-
-    //Check if the username is valid
-    $scope.checkUsernameValid = function(newuser)
-    {
-        $scope.usernameValidErrorMessage = '';
-        if (newuser.username.length === 0)
-        {
-            $scope.usernameValidErrorMessage = 'You must enter a username.';
-            return;
-        }
-        if (newuser.username.length < 6)
-        {
-            $scope.usernameValidErrorMessage = 'Username must be 6 or more characters long.';
-            return;
-        }
-        var alphaNumRe = new RegExp('[^A-Za-z0-9]');
-        if (alphaNumRe.test(newuser.username))
-        {
-            $scope.usernameValidErrorMessage = 'Username must contain only letters and numbers.';
-        }
     };
 
     //Check if the email is valid
@@ -291,7 +279,6 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
     //Check if the password is valid
     $scope.checkPswdValid = function(newuser)
     {
-        $scope.pswdValidErrorMessage = '';
         switch (zxcvbn(newuser.password).score)
         {
             case 0:
@@ -307,10 +294,9 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
             default:
                 $scope.pswdStrengthMessage = 'Very Strong';
         }
-        $scope.pswdMatchErrorMessage = '';
-        if (newuser.password.length < 8)
+        if (!newuser.password || newuser.password.length < 8)
         {
-            $scope.pswdMatchErrorMessage += 'Password must be at least 8 characters.';
+            $scope.pswdMatchErrorMessage = 'Password must be at least 8 characters.';
             $scope.pswdStrengthMessage = 'Invalid';
         }
     };
@@ -398,11 +384,13 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
     {
         //Validate the form input
         console.log('Validating form input %s...\n', JSON.stringify(newuser));
-        $scope.checkUsernameValid(newuser);
-        $scope.checkEmailValid(newuser);
-        $scope.checkEmailMatch(newuser);
-        $scope.checkPswdValid(newuser);
-        $scope.checkPswdMatch(newuser);
+		if($scope.newuser.signupmethod==='email')
+		{
+			$scope.checkEmailValid(newuser);
+			$scope.checkEmailMatch(newuser);
+			$scope.checkPswdMatch(newuser);
+			$scope.checkPswdValid(newuser);
+		}
         $scope.checkDobMonthValid(newuser);
         $scope.checkDobDayValid(newuser);
         $scope.checkDobYearValid(newuser);
@@ -411,7 +399,6 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
 
         //If it is valid,
         if ($scope.tosErrorMessage === '' &&
-            $scope.usernameValidErrorMessage === '' &&
             $scope.emailMatchErrorMessage === '' &&
             $scope.pswdStrengthMessage !== 'Invalid' &&
             $scope.pswdMatchErrorMessage === '' &&
@@ -491,15 +478,41 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
 app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
 {
     //Initialize the login form.
+	$scope.user = 
+	{
+		loginmethod:'',
+		email:'',
+		password:''
+	};
 
     //Highlights the links as we move around.
     $scope.isActive = function(viewLocation)
     {
         return viewLocation === $location.path();
     };
+	
+	//called when the user clicks the login with email button
+	$scope.setLoginMethod = function(method)
+    {
+		if($scope.user.loginmethod !== method)
+		{
+			console.log('Setting login method to %s',method);
+			$scope.user.loginmethod = method;
+		}
+		else
+		{
+			$scope.login($scope.user,method);
+		}
+    };
+	
+	//called to check current signup method
+	$scope.isLoginMethod = function(method)
+    {
+        return $scope.user.loginmethod === method;
+    };
 
     //Provides a function to handle the login button
-    $scope.login = function(user)
+    $scope.login = function(user,method)
     {
         //Post to the login URL
         console.log('Logging in user %s...\n', JSON.stringify(user));

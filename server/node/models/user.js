@@ -5,52 +5,14 @@ var bcrypt = require('bcrypt-nodejs');
 // Define user model schema ===================================================
 var userSchema = mongoose.Schema(
 {
-    //The user's username.  Must be unique.  Together with email constitutes the User DB primary key.
-    username:
-    {
-        type: String,
-        required: true,
-        unique: true
-    },
-
+	//Basic info --------------------------------------------------------------
+	
     //The user's email.  Must be unique.  Together with username constitutes the User DB primary key.
     email:
     {
         type: String,
         required: true,
         unique: true
-    },
-
-    //The hash of the user's password.
-    password:
-    {
-        type: String,
-        required: true,
-        unique: false
-    },
-
-    //Whether the user agreed to the terms.  Should always be true.  We keep this for legal reasons.
-    agree:
-    {
-        type: Boolean,
-        required: true,
-        unique: false
-    },
-
-    //Email verification string.  Sent in the account verification email.
-    verifyString:
-    {
-        type: String,
-        required: true,
-        unique: false
-    },
-
-    //Whether or not the email is confirmed.  Defaults to false and is set true when the user verifies their email.
-    emailConfirmed:
-    {
-        type: Boolean,
-        required: true,
-        unique: false
     },
 
     //The user's birthdate.
@@ -69,6 +31,60 @@ var userSchema = mongoose.Schema(
         unique: false
     },
 
+	//The user's sign-in method.  May be google, faceboook, or email.
+	//TODO: add validation
+	signInMethod:
+    {
+        type: String,
+        required: true,
+        unique: true
+    },
+	
+	//Data for facebook login -------------------------------------------------
+	
+	//Facebook login data if authenticating with passport-facebook
+    facebook: 
+	{
+        id: 
+		{
+			type: String,
+			required: false,
+			unique: true
+		},
+        token: 
+		{
+			type: String,
+			required: false,
+			unique: true
+		}
+    },
+	
+	//Data for email login -------------------------------------------------
+	
+    //The hash of the user's password if authenticating with email
+    password:
+    {
+        type: String,
+        required: false,
+        unique: false
+    },
+
+    //Email verification string.  Sent in the account verification email.
+    verifyString:
+    {
+        type: String,
+        required: false,
+        unique: false
+    },
+
+    //Whether or not the email is confirmed.  Defaults to false and is set true when the user verifies their email.
+    emailConfirmed:
+    {
+        type: Boolean,
+        required: true,
+        unique: false
+    },
+	
     //The date the user reset their password.  If null, there are no pending password resets.
     reset:
     {
@@ -84,6 +100,11 @@ var userSchema = mongoose.Schema(
         required: false,
         unique: false
     }
+	
+	//Profile data ----------------------------------------------------
+	
+	//Sequential ID number
+	//TODO
 
     //Given Name
     //TODO
@@ -93,7 +114,10 @@ var userSchema = mongoose.Schema(
 
     //Middle Name
     //TODO
-
+	
+	//Gender
+	//TODO
+	
     //Address
     //TODO
 
@@ -118,6 +142,14 @@ var userSchema = mongoose.Schema(
     //About me text
     //TODO
 
+	//Currency
+	//TODO
+
+	//Locale
+	//TODO
+	
+	//Site permissions -----------------------------------------------
+	
     //List of trips this user can access
     //TODO
 

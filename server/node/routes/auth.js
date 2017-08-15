@@ -17,6 +17,7 @@ const util = require('util');
 var request = require('request');
 var nodemailer = require('nodemailer');
 var hash = require('object-hash');
+var configAuth = require('../config/accounts');
 
 // This turns a month name into an integer ====================================
 function getMonthFromString(mon)
@@ -33,11 +34,11 @@ function getMonthFromString(mon)
 // Transporter for various emails =============================================
 var transporter = nodemailer.createTransport(
 {
-    service: 'gmail',
+    service: configAuth.gmailAuth.service,
     auth:
     {
-        user: 'accounts@adventure-buddy.com',
-        pass: 'supersecretaccountsemailpassword'
+        user: configAuth.gmailAuth.email,
+        pass: configAuth.gmailAuth.password
     }
 });
 
@@ -46,18 +47,19 @@ var transporter = nodemailer.createTransport(
 module.exports = function(app, passport)
 {
     //Process the login form -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    //Set an additional callback to authenticate with passport.js
     app.post("/node/login", function(req, res, next)
     {
-        passport.authenticate('local-login', function(err, user, info)
+		//Log the request
+		console.log("Login request: %s", util.inspect(req.body, false, null));
+		
+		//Authenticate with passport-local
+        passport.authenticate('email', function(err, user, info)
         {
-            //Log the request
-            console.log("Login request: %s", util.inspect(req.body, false, null));
 
             //If there was an error, send an error message
             if (err || (!user))
             {
-                console.log('Login error, your username or password is incorrect.');
+                console.log('Login error, your username or password is incorrect: %s',err);
                 res.status(400).send(
                 {
                     error: 'Invalid username or password.',
@@ -123,6 +125,9 @@ module.exports = function(app, passport)
     //Sign up a new user -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     app.post("/node/user", function(req, res)
     {
+		//TODO: handle facebook and google logins.  Will need to call an appropriate passport.authenticate
+		//method if facebook or google login.  Then in callback we add them to the database.
+		
         //Log the request -----------------------------------------------------
         console.log("Signup request: %s", util.inspect(req.body, false, null));
 
@@ -134,19 +139,14 @@ module.exports = function(app, passport)
             console.log('ERROR: User\'s email address %s is invalid.', req.body.email);
             valid = false;
         }
-        if (req.body.agree !== true)
-        {
-            console.log('ERROR: User did not accept our ToS.', req.body.agree);
-            valid = false;
-        }
-        if (req.body.username.length < 6)
-        {
-            console.log('ERROR: Username %s is invalid.', req.body.username);
-            valid = false;
-        }
         if (req.body.password.length < 8)
         {
             console.log('ERROR: Password %s is invalid.', req.body.password);
+            valid = false;
+        }
+        if (req.body.agree !== true)
+        {
+            console.log('ERROR: User did not accept our ToS.', req.body.agree);
             valid = false;
         }
         if (!valid)
@@ -168,12 +168,11 @@ module.exports = function(app, passport)
 
         //Create a new user object.
         var newUser = new db.User();
-        newUser.username = req.body.username.toLowerCase();
         newUser.password = newUser.generateHash(req.body.password);
-        newUser.agree = req.body.agree;
         newUser.email = req.body.email.toLowerCase();
         newUser.emailConfirmed = false;
         newUser.verifyString = verificationString;
+		newUser.signInMethod = 'email';
 
         //Check the user's birthdate ------------------------------------------
 
@@ -209,18 +208,9 @@ module.exports = function(app, passport)
 
         //Upsert them into the database -----------------------------------------
 
-        //This will insert them if no existing user has the same username or email.  
+        //This will insert them if no existing user has the same email.  
         //If an existing user is found it will return the existing user.
-        var query = {
-            $or: [
-            {
-                'username': req.body.username
-            },
-            {
-                'email': req.body.email
-            }]
-        };
-        db.User.findOneAndUpdate(query,
+        db.User.findOneAndUpdate({'email': req.body.email},
         {
             $setOnInsert: newUser
         },
@@ -241,24 +231,12 @@ module.exports = function(app, passport)
             }
             if (doc !== null)
             {
-                if (doc.email === newUser.email)
-                {
-                    console.log('ERROR: Email is already registered:%s.\n', doc);
-                    res.status(400).send(
-                    {
-                        error: 'That email is already registered.',
-                        errorcode: 2
-                    });
-                }
-                else
-                {
-                    console.log('ERROR: Username is already registered:%s.\n', doc);
-                    res.status(400).send(
-                    {
-                        error: 'That username is already registered.',
-                        errorcode: 1
-                    });
-                }
+				console.log('ERROR: Email is already registered:%s.\n', doc);
+				res.status(400).send(
+				{
+					error: 'That email is already registered.',
+					errorcode: 2
+				});
                 return;
             }
 
@@ -273,7 +251,7 @@ module.exports = function(app, passport)
             //if they pick a username or email that is already registered.
 
             //Our secret key from google
-            var secretKey = '6LerFCwUAAAAAF3k5gzFJG1c6U0ZAcVQOnp3OHx2';
+            var secretKey = configAuth.reCaptchaAuth.key;
 
             //Verification URL
             var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body.recaptchaResponse + "&remoteip=" + req.connection.remoteAddress;
@@ -533,4 +511,20 @@ module.exports = function(app, passport)
             });
         });
     });
+	
+	//Process FaceBook logins =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	app.get('/node/login/facebook', passport.authenticate('facebook', 
+	{ 
+		//Things we want to know from facebook
+		scope : ['email','user_birthday','public_profile']
+	}));
+	
+	
+    // handle the callback after facebook has authenticated the user
+    app.get('/node/login/facebook/callback',
+        passport.authenticate('facebook', {
+            successRedirect : '/profile',
+            failureRedirect : '/'
+        }));
+		
 };
