@@ -26,7 +26,7 @@
                     <br/>
                     <span class="loginerror">{{pswdMatchErrorMessage}}</span>
                 </div>
-                <div class="form-group">
+                <div class="form-group" ng-show="isSignupMethod('email')">
                     <label>Date of Birth</label>
                     <br/>
                     <select ng-model="newuser.dobMonth" ng-options="x for x in months" ng-change="checkDobMonthValid(newuser)">
@@ -45,20 +45,20 @@
                     <br/>
                     <span class="loginerror">{{tosErrorMessage}}</span>
                 </div>
-                <div class="form-group">
+                <div class="form-group" ng-show="isSignupMethod('email')">
                     <label>Please prove that you are not a robot</label>
                     <div vc-recaptcha key="'6LerFCwUAAAAABNm1j9btGQ6Wem_4-m5MHuMz66D'" on-create="setRecaptchaWidgetId(widgetId)"></div>
                     <span class="loginerror">{{reCaptchaErrorMessage}}</span>
                 </div>
             </form>
 			<span ng-show="isSignupMethod('')||isSignupMethod('facebook')">
-				<p><a ng-click="setSignupMethod('facebook')" class="btn btn-primary" style="width:100%;"><i class="fa fa-facebook"></i> Sign up with Facebook</a></p>
+				<p><a ng-click="buttonCallback('facebook')" class="btn btn-primary" style="width:100%;"><i class="fa fa-facebook"></i> Sign up with Facebook</a></p>
 			</span>
 			<span ng-show="isSignupMethod('')||isSignupMethod('google')">
-				<p><a ng-click="setSignupMethod('google')" class="btn btn-primary" style="background-color:#e64b4b;border-color:#e64b4b;width:100%;"><i class="fa fa-google-plus" aria-hidden="true"></i> Sign up with Google</a></p>
+				<p><a ng-click="buttonCallback('google')" class="btn btn-primary" style="background-color:#e64b4b;border-color:#e64b4b;width:100%;"><i class="fa fa-google-plus" aria-hidden="true"></i> Sign up with Google</a></p>
 			</span>
 			<span ng-show="isSignupMethod('')||isSignupMethod('email')">
-				<p><a ng-click="setSignupMethod('email')" class="btn btn-primary" style="background-color:gray;border-color:gray;width:100%;"><i class="fa fa-envelope" aria-hidden="true"></i> Sign up with Email address</a></p>
+				<p><a ng-click="buttonCallback('email')" class="btn btn-primary" style="background-color:gray;border-color:gray;width:100%;"><i class="fa fa-envelope" aria-hidden="true"></i> Sign up with Email address</a></p>
 			</span>
         </div>
     </div>

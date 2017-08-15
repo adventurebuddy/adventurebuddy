@@ -230,7 +230,7 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
     };
 	
 	//called when the user selects a signup method
-	$scope.setSignupMethod = function(method)
+	$scope.buttonCallback = function(method)
     {
 		if($scope.newuser.signupmethod !== method)
 		{
@@ -239,7 +239,14 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
 		}
 		else
 		{
-			$scope.signup($scope.newuser);
+			if($scope.newuser.signupmethod==='email')
+			{
+				$scope.signupEmail($scope.newuser);
+			}
+			else if($scope.newuser.signupmethod==='facebook')
+			{
+				$scope.signupFacebook($scope.newuser);
+			}
 		}
     };
 	
@@ -380,17 +387,14 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
     };
 
     //Handle the signup button
-    $scope.signup = function(newuser)
+    $scope.signupEmail = function(newuser)
     {
         //Validate the form input
         console.log('Validating form input %s...\n', JSON.stringify(newuser));
-		if($scope.newuser.signupmethod==='email')
-		{
-			$scope.checkEmailValid(newuser);
-			$scope.checkEmailMatch(newuser);
-			$scope.checkPswdMatch(newuser);
-			$scope.checkPswdValid(newuser);
-		}
+		$scope.checkEmailValid(newuser);
+		$scope.checkEmailMatch(newuser);
+		$scope.checkPswdMatch(newuser);
+		$scope.checkPswdValid(newuser);
         $scope.checkDobMonthValid(newuser);
         $scope.checkDobDayValid(newuser);
         $scope.checkDobYearValid(newuser);
@@ -431,7 +435,7 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                             };
                             $location.url('/confirm');
                         }
-                        //If we failed, print an error message saying the user is already registered
+                        //If we failed, print an error message
                         else
                         {
                             console.log('Response is null, weird\n', JSON.stringify(response));
@@ -471,6 +475,23 @@ app.controller('SignupCtrl', function(vcRecaptchaService, $scope, $http, $rootSc
                 );
         }
     };
+	
+	//Handle the facebook signup button
+    $scope.signupFacebook = function(newuser)
+    {
+        //Validate the form input
+        console.log('Validating form input %s...\n', JSON.stringify(newuser));
+        $scope.checkTosValid(newuser);
+
+        //If it is valid, redirect us to the facebook login route
+		//I wanted to pass a bunch of extra shit, but passport-facebook is explicitly designed not
+		//to do this because they think they know better than me how I should run my own fucking website.
+		//GOD I FUCKING HATE THOSE ASSHOLES AT PASSPORT - ADH
+        if ($scope.tosErrorMessage === '')
+        {
+			window.location = 'node/login/facebook';
+		}
+    };
 });
 
 // Controls the Login page ====================================================
@@ -492,7 +513,7 @@ app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
     };
 	
 	//called when the user clicks the login with email button
-	$scope.setLoginMethod = function(method)
+	$scope.buttonCallback = function(method)
     {
 		if($scope.user.loginmethod !== method)
 		{
@@ -514,6 +535,8 @@ app.controller('LoginCtrl', function($scope, $http, $rootScope, $location)
     //Provides a function to handle the login button
     $scope.login = function(user,method)
     {
+		$scope.user.loginmethod = method;
+		
         //Post to the login URL
         console.log('Logging in user %s...\n', JSON.stringify(user));
         $http.post('node/login', user)

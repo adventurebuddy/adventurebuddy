@@ -1,4 +1,6 @@
 
+//FUUUUUUCK PASSPORT.  FUCK THESE OPINIONATED PIECES OF SHIT RIGHT IN THEIR STUPID FAGGOT FUCKING ASSHOLES.
+
 // Load all of the modules we need ============================================
 var LocalStrategy = require('passport-local').Strategy;  //Local auth
 var FacebookStrategy = require('passport-facebook').Strategy; //Facebook auth
@@ -56,19 +58,19 @@ module.exports = function(passport)
     ));
 	
 	// Methods for FaceBook authentication method -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	passport.use('facebook',new FacebookStrategy(
+	passport.use(new FacebookStrategy(
 
     // pull in our app id and secret from our auth.js file
 	{
         clientID        : configAuth.facebookAuth.clientID,
         clientSecret    : configAuth.facebookAuth.clientSecret,
-        callbackURL     : configAuth.facebookAuth.callbackURL,
-		passReqToCallback : false,
+        callbackURL     : '/node/user/facebook/callback',
+		passReqToCallback : true,
         profileFields: ['id', 'emails', 'first_name', 'middle_name', 'last_name','gender','picture','birthday','locale']
     },
 	
 	// facebook will send back the token and profile
-    function(token, refreshToken, profile, done) 
+    function(req, token, refreshToken, profile, done) 
 	{
 
         // asynchronous
@@ -76,6 +78,7 @@ module.exports = function(passport)
 		{
 			console.log('Received FaceBook login request for profile: %s',util.inspect(profile, false, null) );
 			console.log('Token is: %s',token );
+			console.log('Request is: %s',util.inspect(req, false, null) );
 		
             // find the user in the database based on their facebook id
             User.findOne({ 'facebook.id' : profile.id }, function(err, user) 
@@ -94,7 +97,13 @@ module.exports = function(passport)
 				{
 					console.log('Found existing user. Logging in user:%s',user);
                     return done(null, user); // user found, return that user
-                } 
+                }
+				
+				//If the user does not exist and they got here from the login page, redirect 
+				//them to the signup page so that they have to check the ToS agree box.
+				//TODO
+				
+				//Otherwise, create the user.
 				else 
 				{
 					console.log('No existing user. Creating...');
@@ -106,17 +115,28 @@ module.exports = function(passport)
                     newUser.facebook.id    = profile.id; // set the users facebook id                   
                     newUser.facebook.token = token; // we will save the token that facebook provides to the user                    
 
-					//TODO: parse the facebook fields into our required fields.
+					//Parse the facebook fields into our required fields.
 					newUser.email = profile.emails[0].value;
-					newUser.username = profile.name.givenName + ' ' + profile.name.familyName;
+					dob = profile._json.birthday.split('/');
+					newUser.birthdate = new Date(dob[2],dob[0],dob[1]);
 					newUser.created = new Date();
 					
+					//Check that the user is old enough.  If not, return some kind of error.
+					//TODO
+					
+					//Save all of the additional profile information we can get our hands on
+					//TODO
+					
                     // save our user to the database
-                    newUser.save(function(err) {
+                    newUser.save(function(err) 
+					{
                         if (err)
+						{
                             throw err;
+						}
 
                         // if successful, return the new user
+						console.log('Added user to database: %s\n',newUser);
                         return done(null, newUser);
                     });
                 }

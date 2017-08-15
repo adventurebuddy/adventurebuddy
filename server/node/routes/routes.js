@@ -91,6 +91,7 @@ module.exports = function(app, passport)
                         error: 'Server error.  Please try again later.',
                         errorcode: 3
                     });
+					return;
                 }
                 console.log('Successfully logged in user %s.\n', user.username);
                 return res.status(200).send(user);
@@ -123,27 +124,27 @@ module.exports = function(app, passport)
     });
 
     //Sign up a new user -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    app.post("/node/user", function(req, res)
+    app.post("/node/user", function(req, res, next)
     {
-		//TODO: handle facebook and google logins.  Will need to call an appropriate passport.authenticate
-		//method if facebook or google login.  Then in callback we add them to the database.
 		
         //Log the request -----------------------------------------------------
         console.log("Signup request: %s", util.inspect(req.body, false, null));
-
+		
         //Validate the form inputs --------------------------------------------
         var valid = true;
-        var looksLikeAnEmail = new RegExp('.+@.+\\..+');
-        if (!looksLikeAnEmail.test(req.body.email))
-        {
-            console.log('ERROR: User\'s email address %s is invalid.', req.body.email);
-            valid = false;
-        }
-        if (req.body.password.length < 8)
-        {
-            console.log('ERROR: Password %s is invalid.', req.body.password);
-            valid = false;
-        }
+		var looksLikeAnEmail = new RegExp('.+@.+\\..+');
+		if (!looksLikeAnEmail.test(req.body.email))
+		{
+			console.log('ERROR: User\'s email address %s is invalid.', req.body.email);
+			valid = false;
+		}
+		if (req.body.password.length < 8)
+		{
+			console.log('ERROR: Password %s is invalid.', req.body.password);
+			valid = false;
+		}
+		
+		//Always check Tos
         if (req.body.agree !== true)
         {
             console.log('ERROR: User did not accept our ToS.', req.body.agree);
@@ -160,157 +161,162 @@ module.exports = function(app, passport)
             return;
         }
         console.log('Signup form validated ok.');
+		
+		//If this is an email signup ------------------------------------------
+		if(req.body.signupmethod==='email')
+		{
+			console.log('Signing up new user via email.');
 
-        //Create the new user object ------------------------------------------
+			//Create the new user object ------------------------------------------
 
-        //Generate a (probably) unique email verification string
-        var verificationString = hash(req.body);
+			//Generate a (probably) unique email verification string
+			var verificationString = hash(req.body);
 
-        //Create a new user object.
-        var newUser = new db.User();
-        newUser.password = newUser.generateHash(req.body.password);
-        newUser.email = req.body.email.toLowerCase();
-        newUser.emailConfirmed = false;
-        newUser.verifyString = verificationString;
-		newUser.signInMethod = 'email';
+			//Create a new user object.
+			var newUser = new db.User();
+			newUser.password = newUser.generateHash(req.body.password);
+			newUser.email = req.body.email.toLowerCase();
+			newUser.emailConfirmed = false;
+			newUser.verifyString = verificationString;
 
-        //Check the user's birthdate ------------------------------------------
+			//Check the user's birthdate ------------------------------------------
 
-        //To comply with COPPA, you CANNOT tell the user they were rejected because of their age.
-        //If under 13, return success but do NOT save the data and do NOT send a confirmation email.
-        //This is a bad law but we have to follow it. $16,000 - $40,654 fine per violation. - ADH
+			//To comply with COPPA, you CANNOT tell the user they were rejected because of their age.
+			//If under 13, return success but do NOT save the data and do NOT send a confirmation email.
+			//This is a bad law but we have to follow it. $16,000 - $40,654 fine per violation. - ADH
 
-        //Determine the user's age
-        var dob = new Date(parseInt(req.body.dobYear), getMonthFromString(req.body.dobMonth) - 1, parseInt(req.body.dobDay));
-        var today = new Date(Date.now());
-        newUser.birthdate = dob;
-        newUser.created = today;
-        var years = today.getFullYear() - dob.getFullYear();
-        if (dob.getMonth() > today.getMonth() || (dob.getMonth() === today.getMonth() && dob.getDate() > today.getDate()))
-        {
-            years--;
-        }
+			//Determine the user's age
+			var dob = new Date(parseInt(req.body.dobYear), getMonthFromString(req.body.dobMonth) - 1, parseInt(req.body.dobDay));
+			var today = new Date(Date.now());
+			newUser.birthdate = dob;
+			newUser.created = today;
+			var years = today.getFullYear() - dob.getFullYear();
+			if (dob.getMonth() > today.getMonth() || (dob.getMonth() === today.getMonth() && dob.getDate() > today.getDate()))
+			{
+				years--;
+			}
 
-        //You know what, out of an abundance of caution, I've decided all users have to be 14.  That 
-        //should be a bulletproof legal defense and it saves me having to write code for leap years 
-        //and time zones. - ADH
-        if (years < 14)
-        {
-            console.log('ERROR: It\'s a kid!  ABORT! ABORT! age = %d today=%d/%d/%d dob = %d/%d/%d\n', years, today.getFullYear(), today.getMonth() + 1, today.getDate(), dob.getFullYear(), dob.getMonth() + 1, dob.getDate());
-            res.status(200).send(
-            {
-                email: newUser.email,
-                emailConfirmed: false
-            });
-            return;
-        }
-        console.log('User is over 14.  age = %d today=%d/%d/%d dob = %d/%d/%d', years, today.getFullYear(), today.getMonth() + 1, today.getDate(), dob.getFullYear(), dob.getMonth() + 1, dob.getDate());
-
-        //Upsert them into the database -----------------------------------------
-
-        //This will insert them if no existing user has the same email.  
-        //If an existing user is found it will return the existing user.
-        db.User.findOneAndUpdate({'email': req.body.email},
-        {
-            $setOnInsert: newUser
-        },
-        {
-            upsert: true
-        }, function(err, doc)
-        {
-            //Handle errors
-            if (err)
-            {
-                console.log('ERROR: Upsert error: %s', err);
-                res.status(400).send(
-                {
-                    error: 'Server error. Please try again later.',
-                    errorcode: 5
-                });
-                return;
-            }
-            if (doc !== null)
-            {
-				console.log('ERROR: Email is already registered:%s.\n', doc);
-				res.status(400).send(
+			//You know what, out of an abundance of caution, I've decided all users have to be 14.  That 
+			//should be a bulletproof legal defense and it saves me having to write code for leap years 
+			//and time zones. - ADH
+			if (years < 14)
+			{
+				console.log('ERROR: It\'s a kid!  ABORT! ABORT! age = %d today=%d/%d/%d dob = %d/%d/%d\n', years, today.getFullYear(), today.getMonth() + 1, today.getDate(), dob.getFullYear(), dob.getMonth() + 1, dob.getDate());
+				res.status(200).send(
 				{
-					error: 'That email is already registered.',
-					errorcode: 2
+					email: newUser.email,
+					emailConfirmed: false
 				});
-                return;
-            }
+				return;
+			}
+			console.log('User is over 14.  age = %d today=%d/%d/%d dob = %d/%d/%d', years, today.getFullYear(), today.getMonth() + 1, today.getDate(), dob.getFullYear(), dob.getMonth() + 1, dob.getDate());
 
-            //User was successfully inserted.
-            console.log('Upserted user %s into database.', newUser.username);
+			//Upsert them into the database -----------------------------------------
 
-            //Validate the captcha ------------------------------------------------
+			//This will insert them if no existing user has the same email.  
+			//If an existing user is found it will return the existing user.
+			db.User.findOneAndUpdate({'email': req.body.email},
+			{
+				$setOnInsert: newUser
+			},
+			{
+				upsert: true
+			}, function(err, doc)
+			{
+				//Handle errors
+				if (err)
+				{
+					console.log('ERROR: Upsert error: %s', err);
+					res.status(400).send(
+					{
+						error: 'Server error. Please try again later.',
+						errorcode: 5
+					});
+					return;
+				}
+				if (doc !== null)
+				{
+					console.log('ERROR: Email is already registered:%s.\n', doc);
+					res.status(400).send(
+					{
+						error: 'That email is already registered.',
+						errorcode: 2
+					});
+					return;
+				}
 
-            //This may seem out of order since we have already put them into the database.
-            //Once a recaptcha is submitted to google, the reCAPTCHA is no longer valid.
-            //We do this last so that the user does not need to complete another reCAPTCHA
-            //if they pick a username or email that is already registered.
+				//User was successfully inserted.
+				console.log('Upserted user %s into database.', newUser.username);
 
-            //Our secret key from google
-            var secretKey = configAuth.reCaptchaAuth.key;
+				//Validate the captcha ------------------------------------------------
 
-            //Verification URL
-            var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body.recaptchaResponse + "&remoteip=" + req.connection.remoteAddress;
+				//This may seem out of order since we have already put them into the database.
+				//Once a recaptcha is submitted to google, the reCAPTCHA is no longer valid.
+				//We do this last so that the user does not need to complete another reCAPTCHA
+				//if they pick a username or email that is already registered.
 
-            //GET the verification URL. Google will respond with success or error message.
-            request(verificationUrl, function(error, response, body)
-            {
-                body = JSON.parse(body);
-                if (body.success !== undefined && !body.success)
-                {
-                    //CAPTCHA failed, return error
-                    console.log('ERROR: User failed reCAPTCHA validation. THE GOOGLE HUMANS SAY THIS USER IS A ROBOT UNLIKE US SQUISHY HUMANS WHO ARE TOTALLY NOT ROBOTS beep boop\n');
-                    res.status(400).send(
-                    {
-                        error: 'Google says you are a robot.',
-                        errorcode: 3
-                    });
+				//Our secret key from google
+				var secretKey = configAuth.reCaptchaAuth.key;
 
-                    //Delete the user from the database.
-                    newUser.remove();
+				//Verification URL
+				var verificationUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + req.body.recaptchaResponse + "&remoteip=" + req.connection.remoteAddress;
 
-                    return;
-                }
-                console.log('User passed reCAPTCHA validation.  VERY GOOD HE IS A HUMAN JUST LIKE US.  WE SHOULD CHAT ABOUT OUR EMOTIONS AND INTERNAL SKELETONS');
+				//GET the verification URL. Google will respond with success or error message.
+				request(verificationUrl, function(error, response, body)
+				{
+					body = JSON.parse(body);
+					if (body.success !== undefined && !body.success)
+					{
+						//CAPTCHA failed, return error
+						console.log('ERROR: User failed reCAPTCHA validation. THE GOOGLE HUMANS SAY THIS USER IS A ROBOT UNLIKE US SQUISHY HUMANS WHO ARE TOTALLY NOT ROBOTS beep boop\n');
+						res.status(400).send(
+						{
+							error: 'Google says you are a robot.',
+							errorcode: 3
+						});
 
-                //Send them a confirmation email with a unique link in it ------------------------------------------
-                var verifyUrl = 'http://127.0.0.1/node/verify?id=' + verificationString;
-                var mailOptions = {
-                    from: 'Adventure Buddy <accounts@adventure-buddy.com>',
-                    to: newUser.email,
-                    subject: 'Adventure awaits!  Please verify your account.',
-                    text: 'To verify your account, please click the following URL:\n\n' + verifyUrl + '\n\nPlease do not respond to this email.  It was generated from an unmonitored inbox.\n\nFor questions or support, contact support@adventure-buddy.com.'
-                };
-                transporter.sendMail(mailOptions, function(error, info)
-                {
-                    if (error)
-                    {
-                        console.log('ERROR: can\'t send verification email: ' + error);
-                        res.status(500).send(
-                        {
-                            error: 'Cannot send verification email.',
-                            errorcode: 4
-                        });
-                        return;
-                    }
-                    else
-                    {
-                        //We're done.  Return the user JSON as success. -------------------------------------------
-                        console.log('Sent verification email: ' + info.response);
-                        console.log('Signup complete.\n');
-                        res.status(200).send(
-                        {
-                            email: newUser.email,
-                            emailConfirmed: false
-                        });
-                    }
-                });
-            });
-        });
+						//Delete the user from the database.
+						newUser.remove();
+
+						return;
+					}
+					console.log('User passed reCAPTCHA validation.  VERY GOOD HE IS A HUMAN JUST LIKE US.  WE SHOULD CHAT ABOUT OUR EMOTIONS AND INTERNAL SKELETONS');
+
+					//Send them a confirmation email with a unique link in it ------------------------------------------
+					var verifyUrl = 'http://127.0.0.1/node/verify?id=' + verificationString;
+					var mailOptions = {
+						from: 'Adventure Buddy <accounts@adventure-buddy.com>',
+						to: newUser.email,
+						subject: 'Adventure awaits!  Please verify your account.',
+						text: 'To verify your account, please click the following URL:\n\n' + verifyUrl + '\n\nPlease do not respond to this email.  It was generated from an unmonitored inbox.\n\nFor questions or support, contact support@adventure-buddy.com.'
+					};
+					transporter.sendMail(mailOptions, function(error, info)
+					{
+						if (error)
+						{
+							console.log('ERROR: can\'t send verification email: ' + error);
+							res.status(500).send(
+							{
+								error: 'Cannot send verification email.',
+								errorcode: 4
+							});
+							return;
+						}
+						else
+						{
+							//We're done.  Return the user JSON as success. -------------------------------------------
+							console.log('Sent verification email: ' + info.response);
+							console.log('Signup complete.\n');
+							res.status(200).send(
+							{
+								email: newUser.email,
+								emailConfirmed: false
+							});
+						}
+					});
+				});
+			});
+		}		
     });
 
     //Verify a new user's email =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -510,18 +516,26 @@ module.exports = function(app, passport)
                 res.status(200).send();
             });
         });
-    });
-	
-	//Process FaceBook logins =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-	app.get('/node/login/facebook', passport.authenticate('facebook', 
-	{ 
-		//Things we want to know from facebook
-		scope : ['email','user_birthday','public_profile']
-	}));
-	
-	
-    // handle the callback after facebook has authenticated the user
-    app.get('/node/login/facebook/callback',
+    });	
+
+    //Sign up a new user using facebook =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    app.get('/node/user/facebook',
+        passport.authenticate('facebook', 
+		{ 
+			//Things we want to know from facebook
+			scope : ['email','user_birthday','public_profile']
+		}));
+		
+	//Log in a new user using facebook =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    app.get('/node/login/facebook',
+        passport.authenticate('facebook', 
+		{ 
+			//Things we want to know from facebook
+			scope : ['email','user_birthday','public_profile']
+		}));
+		
+    //Handle the facebook authentication callback =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    app.get('/node/user/facebook/callback',
         passport.authenticate('facebook', {
             successRedirect : '/profile',
             failureRedirect : '/'

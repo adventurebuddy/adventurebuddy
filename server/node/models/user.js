@@ -30,15 +30,6 @@ var userSchema = mongoose.Schema(
         required: true,
         unique: false
     },
-
-	//The user's sign-in method.  May be google, faceboook, or email.
-	//TODO: add validation
-	signInMethod:
-    {
-        type: String,
-        required: true,
-        unique: true
-    },
 	
 	//Data for facebook login -------------------------------------------------
 	
@@ -81,7 +72,7 @@ var userSchema = mongoose.Schema(
     emailConfirmed:
     {
         type: Boolean,
-        required: true,
+        required: false,
         unique: false
     },
 	
