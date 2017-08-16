@@ -1,19 +1,36 @@
-<div id="map" ng-init='initMap()' style="width:100%;height:500px;"></div>
+<div id="map" ng-init='initMapPlaces()' style="width:100%;height:500px;"></div>
 <div class="container marketing">
     <div class="row">
         <div class="col-lg-12">
-            <h1 style="margin-top:-50px;color:white;margin-left:240px;">Alexander Hoyland</h1>
-            <img src="images/alex_profile.png" style="vertical-align:top;width:200px;height:200px;margin-top:-100px;margin-left:10px;border-style:double;border-color:gray;border-width:5px;"/>
+            <h1 style="margin-top:-50px;color:white;margin-left:290px;">Alexander Hoyland</h1>
+            <img src="images/alex_profile.png" style="vertical-align:top;width:250px;height:250px;margin-top:-125px;margin-left:10px;border-style:double;border-color:gray;border-width:5px;"/>
             <span style="margin-top:0px;display:inline-block;margin-left:30px;font-size:14px;">
-                <br/><span style="font-size:20px"><i><b>CEO and creator, Adventure Buddy LLC</i></b></span>
-                <br/><br/><b>Adventures:</b> 12 &nbsp;&middot;&nbsp; 
-                <b>Countries visited:</b> 15 &nbsp;&middot;&nbsp;
-                <b>Cities Visited:</b> 193 &nbsp;&nbsp;&middot;&nbsp;
-                <b>Places Visited:</b> 224 &nbsp;&middot;&nbsp;
-                <b>Rank: World Traveler</b> &nbsp;&middot;&nbsp;
-                <b>User #:</b> 1
+                <br/>
+                <p style="font-size:20px">
+                    <i><b>CEO and creator, Adventure Buddy LLC</i></b>
+                    <!--<span style="float:right">
+                        <i class="fa fa-check-square-o" alt="Verfied User" aria-hidden="true" style="color:blue;font-size:25px;margin-left:20px;"></i>
+                        <i class="fa fa-comment-o" alt="Multilingual" aria-hidden="true" style="color:gray;font-size:25px;margin-left:20px;"></i>
+                        <i class="fa fa-euro" alt="Been to Europe" aria-hidden="true" style="color:gold;font-size:25px;margin-left:20px;"></i>
+                        <i class="fa fa-usd" alt="Been to North America" aria-hidden="true" style="color:green;font-size:25px;margin-left:20px;"></i>
+                        <i class="fa fa-paper-plane-o" alt="Frequent Flyer" aria-hidden="true" style="color:lightblue;font-size:25px;margin-left:20px;"></i>
+                        <i class="fa fa-ellipsis-h" alt="Frequent Flyer" aria-hidden="true" style="color:black;font-size:25px;margin-left:20px;"></i>
+                    </span>-->
+                </p>
+                <p>
+                    <b>Rank: World Traveler</b> &nbsp;&middot;&nbsp;
+                    <b>User #:</b> 1
+                </p>
+                <p>
+                    <a><b>Adventures:</b> {{adventures.length}}</a> &nbsp;&middot;&nbsp; 
+                    <a ng-click='initMapPlaces()'><b>Places Visited:</b> {{places.length}}</a> &nbsp;&middot;&nbsp;
+                    <a ng-click='initMapCountries()'><b>Countries visited:</b> {{countries.length}}</a> &nbsp;&middot;&nbsp;
+                    <a><b>Cities Visited:</b> {{cities.length}}</a>
+                </p>
             </span>
-            <br/><br/><h1>My Profile</h1><hr/>
+            <br/><br/><h1 style="display:inline">My Profile</h1>
+            <a style="float:right;">Edit</a>
+            <hr/>
             <p><b>Full name:</b> Alexander Hoyland <a>Change</a></p>
             <p><b>Email:</b> {{ currentUser.email }} <a>Change</a></p>
             <p><b>Street address:</b> No address listed <a>Add an address</a></p>
@@ -21,11 +38,41 @@
             <p><b>Member since:</b> {{currentUser.created}}</p>
             <br/><h1 style="display:inline">My Adventures</h3><a style="float:right">See all</a>
             <hr/>
-            <p> put trips here</p>
+            <div class="row">
+                <div class="col-lg-6" style="height:220px;background-color:#eeeeee;padding:10px;">
+                    <div id="advmap1" style="display:inline-block;vertical-align:top;width:200px;height:200px;background-color:gray;">Map here</div>
+                    <div style="margin-left:10px;display:inline-block;margin-left=20px">
+                        <h3>Mexico</h3><hr/>
+                        <p>Stacey and Alex's mexican fiesta!</p>
+                        <p>This trip occurs in the past.</p>
+                        <p>Dates: 6/3/2010 - 6/10/2010</p>
+                    </div>
+                </div>
+                <div class="col-lg-6" style="height:220px;background-color:lightgray">Adventure 2</div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6" style="height:220px;background-color:lightgray">Adventure 3</div>
+                <div class="col-lg-6" style="height:220px;background-color:lightgray">Adventure 4</div>
+            </div>
             <br/><h1 style="display:inline">My Places</h1><a style="float:right">See all</a>
             <hr/>
-            <p> put places here</p>
-            <br/><h1 style="display:inline">My Photos</h1><a style="float:right">See all</a>
+            <div class="row">
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">1</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">2</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">3</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">4</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">5</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">6</div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">7</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">8</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">9</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">10</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">11</div>
+                <div class="col-lg-2" style="height:220px;background-color:#eeeeee;padding:10px;">...</div>
+            </div>
+            <!--<br/><h1 style="display:inline">My Photos</h1><a style="float:right">See all</a>
             <hr/>
             <p> put photos here</p>
             <br/><h1 style="display:inline">My Friends</h1><a style="float:right">See all</a>
@@ -36,8 +83,7 @@
             <p> put reviews here</p>
             <br/><h1 style="display:inline">My Feed</h1><a style="float:right">See all</a>
             <hr/>
-            <p> put feed here</p>
-            <!-- Add photo upload on upper left.  Add map of places as banner image behind "Alexander's Profile."  Add badges below photo upload. Add dummy objects in all places. -->
+            <p> put feed here</p>-->
         </div>
     </div>
 </div>

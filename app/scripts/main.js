@@ -772,47 +772,144 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
         {
             name:'Jamaica',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Mexico',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Caribbean Cruise',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Hawaii',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Iceland',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Australia',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Grand Canyon',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Upcoming'
+            type:'Past'
         },
         {
             name:'Europe',
             position:{lat:-10.4475,lng:105.6904},
+            type:'Past'
+        },
+        {
+            name:'Eclipse Trip',
+            position:{lat:-10.4475,lng:105.6904},
             type:'Upcoming'
         },
+        {
+            name:'Christmas Island',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Future'
+        }
     ];
     
-    //Function to intialize the map
-    $scope.initMap=function()
+    $scope.countries=
+    [
+        ['Country',          'places'],
+        ['United States',    10],
+        ['Canada',           10],
+        ['Mexico',           10],
+        ['Jamaica',          10],
+        ['Turks and Caicos', 10],
+        ['Bahamas',          10],
+        ['Australia',        10],
+        ['Portugal',         10],
+        ['Austria',          10],
+        ['Italy',            10],
+        ['Vatican City',     10],
+        ['San Marino',       10],
+        ['Switzerland',      10],
+        ['Sweden',           10],
+        ['Norway',           10],
+        ['Iceland',          10],
+        ['United Kingdom',   1]
+    ];
+    
+    $scope.cities=
+    [
+        ['City',                       'dummy'],
+        ['Annapolis, MD, USA'              ,10],
+        ['New York, NY, USA'               ,10],
+        ['Springfield, IL, USA'            ,10],
+        ['Chicago, IL, USA'                ,10],
+        ['Denver, CO, USA'                 ,10],
+        ['Geiranger, Norway'               ,10],
+        ['Oslo, Norway'                    ,10],
+        ['Alesund, Norway',                ,10],
+        ['Stavanger, Norway'               ,10],
+        ['London, England'                 ,10],
+        ['Lisbon, Portugal'                ,10],
+        ['Rome, Italy'                     ,10],
+        ['Florence, Italy'                 ,10],
+        ['Milan, Italy'                    ,10],
+        ['San Marino'                      ,10],
+        ['Vatican City'                    ,10],
+        ['Impruneta, Italy'                ,10],
+        ['Venice, Italy'                   ,10],
+        ['Pisa, Italy'                     ,10],
+        ['Manarola, Italy'                 ,10],
+        ['Zurich, Switzerland'             ,10],
+        ['Stockholm, Sweden'               ,10],
+        ['Visingso, Sweden'                ,10],
+        ['Gothenburg, Sweden'              ,10],
+        ['Parma, Italy'                    ,10],
+        ['Sydney, Australia'               ,10],
+        ['Palm Cove, Australia'            ,10],
+        ['Cairns, Australia'               ,10],
+        ['Reykjavik, Iceland'              ,10],
+        ['Vik, Iceland'                    ,10],
+        ['Kirkjubaejarklaustur, Iceland'   ,10],
+        ['Keflavik, Iceland'               ,10],
+        ['Hellnar, Iceland'                ,10],
+        ['Bjarnarhofn, Iceland'            ,10]
+    ];
+    
+    //Function to intialize the map of countries
+    $scope.initMapCountries=function()
+    {
+    
+      google.charts.load('current', {
+        'packages':['geochart'],
+        'mapsApiKey': 'AIzaSyC07pb48i3T49JNN8E24PdYZilf52f3nFw'
+      });
+      google.charts.setOnLoadCallback(drawRegionsMap);
+
+      function drawRegionsMap() {
+        var data = google.visualization.arrayToDataTable($scope.countries);
+
+        var options = {
+            defaultColor:'green',
+            backgroundColor:'lightblue',
+            datalessRegionColor:'#00bb00',
+            legend:'none',
+            colorAxis: {colors: ['green', 'green']}
+        };
+
+        var chart = new google.visualization.GeoChart(document.getElementById('map'));
+
+        chart.draw(data, options);
+      }
+    };
+    
+    $scope.initMapPlaces=function()
     {
     
         //Build the my places profile map
@@ -871,3 +968,8 @@ $('.carousel').carousel(
         wrap: true
     })
     .on('click', '.carousel-control', handleCarouselNav);
+    
+function mapsLoaded()
+{
+    console.log("Maps script loaded.");
+}
