@@ -9,10 +9,11 @@
   "node": true,
   "strict": true,
   "undef": true,
-  "unused": true,
+  "unused": false,
   "globals": {
     "angular": false,
     "$": false,
-	"zxcvbn":false
+	"zxcvbn":false,
+    "google":false
   }
 }

@@ -2,28 +2,48 @@
     <div class="container">
         <nav class="navbar navbar-inverse navbar-static-top">
             <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="/">Adventure Buddy</a>
-                </div>
-                <div id="navbar" class="navbar-collapse collapse" ng-controller="PageCtrl">
-                    <ul class="nav navbar-nav">
-                        <li ng-class="{ active: isActive('/')}"><a href="/">Home</a></li>
-                        <li ng-class="{ active: isActive('/gallery')}"><a href="/gallery">Gallery</a></li>
-                        <li ng-class="{ active: isActive('/about')}"><a href="/about">About</a></li>
-                    </ul>
-                    <span ng-show="!currentUser">
+                <span ng-show="!currentUser">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/">Adventure Buddy</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse" ng-controller="PageCtrl">
+                        <ul class="nav navbar-nav">
+                            <li ng-class="{ active: isActive('/')}"><a href="/">Home</a></li>
+                            <li ng-class="{ active: isActive('/gallery')}"><a href="/gallery">Gallery</a></li>
+                            <li ng-class="{ active: isActive('/about')}"><a href="/about">About</a></li>
+                        </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li ng-class="{ active: isActive('/login')}"><a href="/login">Log In</a></li>
                             <li ng-class="{ active: isActive('/signup')}"><a href="/signup">Sign Up</a></li>
                         </ul>
-                    </span>
-                    <span ng-show="currentUser">
+                    </div>
+                </span>
+                <span ng-show="currentUser">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/profile">Adventure Buddy</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse" ng-controller="PageCtrl">
+                        <ul class="nav navbar-nav">
+                            <li ng-class="{ active: isActive('/profile')}"><a href="/profile">Profile</a></li>
+                            <li ng-class="{ active: isActive('/adventures')}"><a href="/adventures">Adventures</a></li>
+                            <li ng-class="{ active: isActive('/places')}"><a href="/places">Places</a></li>
+                            <li ng-class="{ active: isActive('/photos')}"><a href="/photos">Photos</a></li>
+                            <li ng-class="{ active: isActive('/friends')}"><a href="/friends">Friends</a></li>
+                            <li ng-class="{ active: isActive('/forums')}"><a href="/forums">Forums</a></li>
+                            <li ng-class="{ active: isActive('/gallery')}"><a href="/gallery">Gallery</a></li>
+                        </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown pull-xs-right">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -31,17 +51,15 @@
                                     <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">My Adventures</a></li>
-                                    <li><a href="#">My Reviews</a></li>
-                                    <li><a href="#">My Photos</a></li>
-                                    <li><a href="/profile">My Profile</a></li>
-                                    <li><a href="#">Settings</a></li>
+                                    <li><a href="/achievements">Achievements</a></li>
+                                    <li><a href="/reviews">Reviews</a></li>
+                                    <li><a href="/settings">Settings</a></li>
                                     <li><a href="/" ng-click="logout()">Sign Out</a></li>
                                 </ul>
                             </li>
                         </ul>
-                    </span>
-                </div>
+                    </div>
+                </span>
             </div>
         </nav>
     </div>

@@ -1,30 +1,43 @@
-<div class="spacer">
-    &nbsp;
-</div>
+<div id="map" ng-init='initMap()' style="width:100%;height:500px;"></div>
 <div class="container marketing">
     <div class="row">
         <div class="col-lg-12">
-            <h1>Alexander's Profile</h1>
-            <hr/>
+            <h1 style="margin-top:-50px;color:white;margin-left:240px;">Alexander Hoyland</h1>
+            <img src="images/alex_profile.png" style="vertical-align:top;width:200px;height:200px;margin-top:-100px;margin-left:10px;border-style:double;border-color:gray;border-width:5px;"/>
+            <span style="margin-top:0px;display:inline-block;margin-left:30px;font-size:14px;">
+                <br/><span style="font-size:20px"><i><b>CEO and creator, Adventure Buddy LLC</i></b></span>
+                <br/><br/><b>Adventures:</b> 12 &nbsp;&middot;&nbsp; 
+                <b>Countries visited:</b> 15 &nbsp;&middot;&nbsp;
+                <b>Cities Visited:</b> 193 &nbsp;&nbsp;&middot;&nbsp;
+                <b>Places Visited:</b> 224 &nbsp;&middot;&nbsp;
+                <b>Rank: World Traveler</b> &nbsp;&middot;&nbsp;
+                <b>User #:</b> 1
+            </span>
+            <br/><br/><h1>My Profile</h1><hr/>
             <p><b>Full name:</b> Alexander Hoyland <a>Change</a></p>
             <p><b>Email:</b> {{ currentUser.email }} <a>Change</a></p>
             <p><b>Street address:</b> No address listed <a>Add an address</a></p>
             <p><b>Birthday:</b> {{currentUser.birthdate}}</p>
             <p><b>Member since:</b> {{currentUser.created}}</p>
-            <p><a>Change my password</a></p>
-            <h3>My trips</h3>
+            <br/><h1 style="display:inline">My Adventures</h3><a style="float:right">See all</a>
             <hr/>
             <p> put trips here</p>
-            <h3>My photos</h3>
+            <br/><h1 style="display:inline">My Places</h1><a style="float:right">See all</a>
+            <hr/>
+            <p> put places here</p>
+            <br/><h1 style="display:inline">My Photos</h1><a style="float:right">See all</a>
             <hr/>
             <p> put photos here</p>
-            <h3>My friends</h3>
+            <br/><h1 style="display:inline">My Friends</h1><a style="float:right">See all</a>
             <hr/>
             <p> put friends here</p>
-            <h3>My reviews</h3>
+            <br/><h1 style="display:inline">My Reviews</h1><a style="float:right">See all</a>
             <hr/>
             <p> put reviews here</p>
-            <!-- Add photo upload on upper left.  Add banner image behind "Alexander's Profile."  Add badges below photo upload. Add a newsfeed somewhere.  -->
+            <br/><h1 style="display:inline">My Feed</h1><a style="float:right">See all</a>
+            <hr/>
+            <p> put feed here</p>
+            <!-- Add photo upload on upper left.  Add map of places as banner image behind "Alexander's Profile."  Add badges below photo upload. Add dummy objects in all places. -->
         </div>
     </div>
 </div>

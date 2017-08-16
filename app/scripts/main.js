@@ -155,7 +155,8 @@ app.config(function($routeProvider, $locationProvider)
             resolve:
             {
                 logincheck: checkLoggedin
-            }
+            },
+            controller: 'ProfileCtrl'
         })
         //Error
         .when('/error',
@@ -730,6 +731,125 @@ app.controller('ResetCtrl', function($rootScope, $scope, $http, $location)
 
 });
 
+// Controller for profile page ================================================
+
+app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
+{
+
+    //Highlights the links as we move around.
+    $scope.isActive = function(viewLocation)
+    {
+        return viewLocation === $location.path();
+    };
+    
+    //Dummy data for places and adventures
+    $scope.places=
+    [
+        {
+            name:'Hawaii',
+            position:{lat:21.3069,lng:-157.8583},
+            type:'BeenThere'
+        },
+        {
+            name:'Annapolis',
+            position:{lat:38.9784,lng:-76.4922},
+            type:'BeenThere'
+        },
+        {
+            name:'Geiranger',
+            position:{lat:62.1008,lng:7.2059},
+            type:'BeenThere'
+        },
+        {
+            name:'Christmas Island',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'WantToGo'
+        }
+    ];
+    
+    $scope.adventures=
+    [
+        {
+            name:'Jamaica',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Mexico',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Caribbean Cruise',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Hawaii',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Iceland',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Australia',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Grand Canyon',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+        {
+            name:'Europe',
+            position:{lat:-10.4475,lng:105.6904},
+            type:'Upcoming'
+        },
+    ];
+    
+    //Function to intialize the map
+    $scope.initMap=function()
+    {
+    
+        //Build the my places profile map
+        console.log('Creating map');
+        var map = new google.maps.Map(document.getElementById('map'), 
+        {
+          zoom: 2,
+          center: {lat:30,lng:0},
+          disableDefaultUI: true
+        });
+        map.setMapTypeId('hybrid');
+        
+        //Populate an icon for each of my places
+        for(var i=0;i<$scope.places.length;i++)
+        {
+            var color='lightgreen';
+            if($scope.places[i].type==='WantToGo')
+            {
+                color='red';
+            }
+            
+            var marker = new google.maps.Marker(
+            {
+              position: $scope.places[i].position,
+              icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                strokeColor:color,
+                fillColor:color,
+                fillOpacity:1.0,
+                scale:3
+              },
+              map: map
+            });
+        }
+    };       
+});
+    
 // Carousel handler ===========================================================
 
 /**
