@@ -16,4 +16,4 @@
 @start nginx -c server\nginx\conf\nginx.conf
 
 @echo "Starting node server/node/server.js..."
-@start node server\node\server.js >server\node\logs\adventurebuddy.log
+@start node node_modules\nodemon\bin\nodemon.js server\node\server.js >server\node\logs\adventurebuddy.log

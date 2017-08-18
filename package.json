@@ -61,6 +61,7 @@
     "mongoose": "^4.11.5",
     "morgan": "^1.8.2",
     "nodemailer": "^4.0.1",
+    "nodemon": "^1.11.0",
     "object-hash": "^1.1.8",
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",

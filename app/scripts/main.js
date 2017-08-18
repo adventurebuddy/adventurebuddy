@@ -158,6 +158,46 @@ app.config(function($routeProvider, $locationProvider)
             },
             controller: 'ProfileCtrl'
         })
+        //My adventures page
+        .when('/adventures',
+        {
+            templateUrl: 'views/adventures.html',
+            resolve:
+            {
+                logincheck: checkLoggedin
+            },
+            controller: 'PageCtrl'
+        })
+        //My places page
+        .when('/places',
+        {
+            templateUrl: 'views/places.html',
+            resolve:
+            {
+                logincheck: checkLoggedin
+            },
+            controller: 'PageCtrl'
+        })
+        //Adventure planner
+        .when('/planner',
+        {
+            templateUrl: 'views/planner.html',
+            resolve:
+            {
+                logincheck: checkLoggedin
+            },
+            controller: 'PageCtrl'
+        })
+        //Account settings
+        .when('/settings',
+        {
+            templateUrl: 'views/settings.html',
+            resolve:
+            {
+                logincheck: checkLoggedin
+            },
+            controller: 'PageCtrl'
+        })
         //Error
         .when('/error',
         {
@@ -733,6 +773,13 @@ app.controller('ResetCtrl', function($rootScope, $scope, $http, $location)
 
 // Controller for profile page ================================================
 
+var citiesMap;
+var countriesMap;
+var adventuresMap;
+var placesMap;
+var chartData;
+var chartOptions;
+
 app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
 {
 
@@ -748,17 +795,17 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
         {
             name:'Hawaii',
             position:{lat:21.3069,lng:-157.8583},
-            type:'BeenThere'
+            type:'Past'
         },
         {
             name:'Annapolis',
             position:{lat:38.9784,lng:-76.4922},
-            type:'BeenThere'
+            type:'Past'
         },
         {
             name:'Geiranger',
             position:{lat:62.1008,lng:7.2059},
-            type:'BeenThere'
+            type:'Past'
         },
         {
             name:'Christmas Island',
@@ -771,53 +818,58 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
     [
         {
             name:'Jamaica',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:18.1096,lng:-77.2975},
             type:'Past'
         },
         {
             name:'Mexico',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:21.1619,lng:-86.8515},
             type:'Past'
         },
         {
             name:'Caribbean Cruise',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:21.6940,lng:-71.7979},
             type:'Past'
         },
         {
             name:'Hawaii',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:21.3069,lng:-157.8583},
             type:'Past'
         },
         {
             name:'Iceland',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:64.9631,lng:19.0208},
             type:'Past'
         },
         {
             name:'Australia',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:-16.8167,lng:145.6333},
             type:'Past'
         },
         {
             name:'Grand Canyon',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:36.0544,lng:-112.1401},
             type:'Past'
         },
         {
-            name:'Europe',
-            position:{lat:-10.4475,lng:105.6904},
+            name:'Italy',
+            position:{lat:41.8719,lng:12.5674},
+            type:'Past'
+        },
+        {
+            name:'Scandinavia',
+            position:{lat:57.7089,lng:11.9746},
             type:'Past'
         },
         {
             name:'Eclipse Trip',
-            position:{lat:-10.4475,lng:105.6904},
+            position:{lat:35.2271,lng:-80.8431},
             type:'Upcoming'
         },
         {
             name:'Christmas Island',
             position:{lat:-10.4475,lng:105.6904},
-            type:'Future'
+            type:'WantToGo'
         }
     ];
     
@@ -845,7 +897,6 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
     
     $scope.cities=
     [
-        ['City',                       'dummy'],
         ['Annapolis, MD, USA'              ,10],
         ['New York, NY, USA'               ,10],
         ['Springfield, IL, USA'            ,10],
@@ -853,7 +904,7 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
         ['Denver, CO, USA'                 ,10],
         ['Geiranger, Norway'               ,10],
         ['Oslo, Norway'                    ,10],
-        ['Alesund, Norway',                ,10],
+        ['Alesund, Norway'                 ,10],
         ['Stavanger, Norway'               ,10],
         ['London, England'                 ,10],
         ['Lisbon, Portugal'                ,10],
@@ -882,45 +933,60 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
         ['Bjarnarhofn, Iceland'            ,10]
     ];
     
-    //Function to intialize the map of countries
-    $scope.initMapCountries=function()
+    //Function to intialize the maps
+    $scope.initMaps=function()
     {
+		//Options for our google maps
+		var mapOptions = 
+		{
+			draggable: false,
+			scrollwheel: false,
+			panControl: false,
+			maxZoom: 2,
+			minZoom: 2,
+			zoom: 2,
+			center: {lat:30,lng:0},
+			disableDefaultUI: true
+        }
     
-      google.charts.load('current', {
-        'packages':['geochart'],
-        'mapsApiKey': 'AIzaSyC07pb48i3T49JNN8E24PdYZilf52f3nFw'
-      });
-      google.charts.setOnLoadCallback(drawRegionsMap);
-
-      function drawRegionsMap() {
-        var data = google.visualization.arrayToDataTable($scope.countries);
-
-        var options = {
-            defaultColor:'green',
-            backgroundColor:'lightblue',
-            datalessRegionColor:'#00bb00',
-            legend:'none',
-            colorAxis: {colors: ['green', 'green']}
-        };
-
-        var chart = new google.visualization.GeoChart(document.getElementById('map'));
-
-        chart.draw(data, options);
-      }
-    };
-    
-    $scope.initMapPlaces=function()
-    {
+        //Build the my adventures profile map
+        adventuresMap = new google.maps.Map(document.getElementById('adventuresmap'), mapOptions);
+        adventuresMap.setMapTypeId('hybrid');
+		
+        //Build the cities profile map
+        citiesMap = new google.maps.Map(document.getElementById('citiesmap'), mapOptions);
+        citiesMap.setMapTypeId('hybrid');
     
         //Build the my places profile map
-        console.log('Creating map');
-        var map = new google.maps.Map(document.getElementById('map'), 
+        placesMap = new google.maps.Map(document.getElementById('placesmap'), mapOptions);
+        placesMap.setMapTypeId('hybrid');
+        
+        //Populate an icon for each of my adventures
+        for(var i=0;i<$scope.adventures.length;i++)
         {
-          zoom: 2,
-          center: {lat:30,lng:0},
-          disableDefaultUI: true
-        });
-        map.setMapTypeId('hybrid');
+            var color='lightgreen';
+            if($scope.adventures[i].type==='WantToGo')
+            {
+                color='red';
+            }
+			else if ($scope.adventures[i].type==='Upcoming')
+            {
+                color='cyan';
+            }
+            
+            var marker = new google.maps.Marker(
+            {
+              position: $scope.adventures[i].position,
+              icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                strokeColor:color,
+                fillColor:color,
+                fillOpacity:1.0,
+                scale:3
+              },
+              map: adventuresMap
+            });
+        }
         
         //Populate an icon for each of my places
         for(var i=0;i<$scope.places.length;i++)
@@ -929,6 +995,10 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
             if($scope.places[i].type==='WantToGo')
             {
                 color='red';
+            }
+			else if ($scope.adventures[i].type==='Upcoming')
+            {
+                color='cyan';
             }
             
             var marker = new google.maps.Marker(
@@ -941,9 +1011,54 @@ app.controller('ProfileCtrl', function($rootScope, $scope, $http, $location)
                 fillOpacity:1.0,
                 scale:3
               },
-              map: map
+              map: placesMap
             });
         }
+		
+		//Build the my countries map
+		//TODO:change this to also be a map, doesn't handle carousel resize well
+		google.charts.load('current', {
+		'packages':['geochart'],
+		'mapsApiKey': 'AIzaSyC07pb48i3T49JNN8E24PdYZilf52f3nFw'
+		});
+		google.charts.setOnLoadCallback(function() 
+		{
+			chartData = google.visualization.arrayToDataTable($scope.countries);
+			chartOptions = {
+				defaultColor:'green',
+				backgroundColor:'lightblue',
+				datalessRegionColor:'#00bb00',
+				legend:'none',
+				colorAxis: {colors: ['#009900', 'green']}
+			};
+			countriesMap = new google.visualization.GeoChart(document.getElementById('countriesmap'));
+			countriesMap.draw(chartData, chartOptions);
+		});
+		
+		//Put in some code to re-render the google maps as the carousel page moves
+		$('#mapCarousel').on('slid.bs.carousel', function (e) 
+		{
+			// Trigger the resize
+			if(e.relatedTarget.children[0].id==='placesmap')
+			{
+				google.maps.event.trigger(placesMap, 'resize');
+				placesMap.setCenter({lat:30,lng:0})
+			}
+			else if(e.relatedTarget.children[0].id==='adventuresmap')
+			{
+				google.maps.event.trigger(adventuresMap, 'resize');
+				adventuresMap.setCenter({lat:30,lng:0})
+			}
+			else if(e.relatedTarget.children[0].id==='citiesmap')
+			{
+				google.maps.event.trigger(citiesMap, 'resize');
+				citiesMap.setCenter({lat:30,lng:0})
+			}
+			else if(e.relatedTarget.children[0].id==='countriesmap')
+			{
+				countriesMap.draw(chartData, chartOptions)
+			}
+		});
     };       
 });
     
@@ -971,5 +1086,5 @@ $('.carousel').carousel(
     
 function mapsLoaded()
 {
-    console.log("Maps script loaded.");
+    console.log('Maps script loaded.');
 }
